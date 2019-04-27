@@ -8,4 +8,8 @@ data class App(@Id val _id: ObjectId,
                val name: String,
                val appId: String,
                val appSecret: String,
-               val description: String?)
+               val description: String?) {
+
+    val id: String
+        get() = _id.toHexString()
+}
