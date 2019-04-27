@@ -9,9 +9,10 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import pl.edu.agh.bioauth.apigateway.exception.AppNotFoundException
-import pl.edu.agh.bioauth.apigateway.exception.FaceRecognitionFailedException
-import pl.edu.agh.bioauth.apigateway.model.network.ApiResponse
-import pl.edu.agh.bioauth.apigateway.model.network.ErrorResponse
+import pl.edu.agh.bioauth.apigateway.exception.AuthenticationFailedException
+import pl.edu.agh.bioauth.apigateway.exception.RecognitionFailedException
+import pl.edu.agh.bioauth.apigateway.model.network.api.ApiResponse
+import pl.edu.agh.bioauth.apigateway.model.network.api.ErrorResponse
 import pl.edu.agh.bioauth.apigateway.service.FaceRecognitionService
 import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.APP_ID
 import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.APP_SECRET
@@ -47,10 +48,14 @@ class FaceRecognitionController(private val faceRecognitionService: FaceRecognit
                 ResponseEntity
                         .status(HttpStatus.UNAUTHORIZED)
                         .body(ErrorResponse.getInvalidAppCredentialsError(AUTHENTICATE_PATH))
-            } catch (e: FaceRecognitionFailedException) {
+            } catch (e: RecognitionFailedException) {
                 ResponseEntity
                         .status(e.status)
-                        .body(ErrorResponse.getFaceRecognitionFailedError(e.status, AUTHENTICATE_PATH))
+                        .body(ErrorResponse.getRecognitionFailedError(e.status, AUTHENTICATE_PATH))
+            } catch (e: AuthenticationFailedException) {
+                ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(ErrorResponse.getAuthenticationFailedError(AUTHENTICATE_PATH))
             }
 
     companion object {

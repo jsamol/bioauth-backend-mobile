@@ -29,6 +29,12 @@ val PublicKey.stringValue: String
         return Base64.getEncoder().encodeToString(keySpec.encoded)
     }
 
+fun String.toPrivateKey(): PrivateKey {
+    val keySpec = PKCS8EncodedKeySpec(Base64.getDecoder().decode(this))
+    val keyFactory = KeyFactory.getInstance(KeyGenerator.KEY_ALGORITHM)
+    return keyFactory.generatePrivate(keySpec)
+}
+
 fun <K, V> MultiValueMap<K, V>.addAll(map: Map<K, V>) {
     map.forEach { add(it.key, it.value) }
 }
