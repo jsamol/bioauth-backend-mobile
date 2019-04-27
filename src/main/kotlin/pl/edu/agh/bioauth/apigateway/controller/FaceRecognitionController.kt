@@ -46,7 +46,7 @@ class FaceRecognitionController(private val faceRecognitionService: FaceRecognit
                 ResponseEntity.ok(faceRecognitionService.authenticate(samples, appId, appSecret, challenge))
             } catch (e: AppNotFoundException) {
                 ResponseEntity
-                        .status(HttpStatus.UNAUTHORIZED)
+                        .status(HttpStatus.BAD_REQUEST)
                         .body(ErrorResponse.getInvalidAppCredentialsError(AUTHENTICATE_PATH))
             } catch (e: RecognitionFailedException) {
                 ResponseEntity
