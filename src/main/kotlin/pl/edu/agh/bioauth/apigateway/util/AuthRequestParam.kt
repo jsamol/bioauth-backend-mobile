@@ -5,4 +5,5 @@ object AuthRequestParam {
     const val APP_ID = "appId"
     const val APP_SECRET = "appSecret"
     const val USER_ID = "userId"
+    const val CHALLENGE = "challenge"
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import pl.edu.agh.bioauth.apigateway.exception.AppNotFoundException
 import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
+import pl.edu.agh.bioauth.apigateway.model.network.AuthenticateResponse
 import pl.edu.agh.bioauth.apigateway.model.network.RegisterResponse
 import pl.edu.agh.bioauth.apigateway.repository.AppRepository
 import pl.edu.agh.bioauth.apigateway.repository.BiometricPatternRepository
@@ -33,6 +34,14 @@ class AuthService {
             biometricPatternRepository.save(BiometricPattern(fileIds, app._id, userId, keyPair.private.stringValue))
 
             return RegisterResponse(keyPair.public.stringValue)
+        }
+
+        throw AppNotFoundException()
+    }
+
+    fun authenticate(samples: List<MultipartFile>, appId: String, appSecret: String, challenge: String): AuthenticateResponse {
+        appRepository.findByAppIdAndAppSecret(appId, appSecret)?.let { app ->
+            return AuthenticateResponse()
         }
 
         throw AppNotFoundException()
