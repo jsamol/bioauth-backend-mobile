@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.mongodb.gridfs.GridFsTemplate
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import pl.edu.agh.bioauth.apigateway.exception.AppNotFoundException
 import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
 import pl.edu.agh.bioauth.apigateway.model.network.RegisterResponse
 import pl.edu.agh.bioauth.apigateway.repository.AppRepository
@@ -24,6 +25,7 @@ class AuthService {
     @Autowired
     private lateinit var gridFsTemplate: GridFsTemplate
 
+    @Throws(AppNotFoundException::class)
     fun registerPattern(samples: List<MultipartFile>, appId: String, appSecret: String, userId: String): RegisterResponse {
         appRepository.findByAppIdAndAppSecret(appId, appSecret)?.let { app ->
             val fileIds = samples.map(MultipartFile::toFile).map { gridFsTemplate.store(it.inputStream(), it.name) }
@@ -33,6 +35,6 @@ class AuthService {
             return RegisterResponse(keyPair.public.stringValue)
         }
 
-        return RegisterResponse("")
+        throw AppNotFoundException()
     }
 }
