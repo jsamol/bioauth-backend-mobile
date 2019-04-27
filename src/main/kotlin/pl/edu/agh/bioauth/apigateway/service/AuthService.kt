@@ -1,6 +1,5 @@
 package pl.edu.agh.bioauth.apigateway.service
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.mongodb.gridfs.GridFsTemplate
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
@@ -15,16 +14,9 @@ import pl.edu.agh.bioauth.apigateway.util.stringValue
 import pl.edu.agh.bioauth.apigateway.util.toFile
 
 @Service
-class AuthService {
-
-    @Autowired
-    private lateinit var appRepository: AppRepository
-
-    @Autowired
-    private lateinit var biometricPatternRepository: BiometricPatternRepository
-
-    @Autowired
-    private lateinit var gridFsTemplate: GridFsTemplate
+class AuthService(private val appRepository: AppRepository,
+                  private val biometricPatternRepository: BiometricPatternRepository,
+                  private val gridFsTemplate: GridFsTemplate) {
 
     @Throws(AppNotFoundException::class)
     fun registerPattern(samples: List<MultipartFile>, appId: String, appSecret: String, userId: String): RegisterResponse {

@@ -1,19 +1,17 @@
 package pl.edu.agh.bioauth.apigateway.controller
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
-import pl.edu.agh.bioauth.apigateway.model.network.ErrorResponse
 import pl.edu.agh.bioauth.apigateway.exception.AppNotFoundException
 import pl.edu.agh.bioauth.apigateway.model.network.ApiResponse
-import pl.edu.agh.bioauth.apigateway.model.network.AuthenticateResponse
+import pl.edu.agh.bioauth.apigateway.model.network.ErrorResponse
 import pl.edu.agh.bioauth.apigateway.service.AuthService
-import pl.edu.agh.bioauth.apigateway.util.AuthContentType.MULTIPART
 import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.APP_ID
 import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.APP_SECRET
 import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.CHALLENGE
@@ -22,12 +20,9 @@ import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.USER_ID
 
 @RestController
 @RequestMapping("/auth")
-class AuthController {
+class AuthController(private val authService: AuthService) {
 
-    @Autowired
-    private lateinit var authService: AuthService
-
-    @RequestMapping("/register", method = [RequestMethod.POST], consumes = [MULTIPART])
+    @RequestMapping("/register", method = [RequestMethod.POST], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun register(@RequestParam(name = SAMPLES, required = true) samples: List<MultipartFile>,
                  @RequestParam(name = APP_ID, required = true) appId: String,
                  @RequestParam(name = APP_SECRET, required = true) appSecret: String,
@@ -40,7 +35,7 @@ class AuthController {
                         .body(ErrorResponse.getInvalidAppCredentialsError("/auth/register"))
             }
 
-    @RequestMapping("/authenticate", method = [RequestMethod.POST], consumes = [MULTIPART])
+    @RequestMapping("/authenticate", method = [RequestMethod.POST], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun authenticate(@RequestParam(name = SAMPLES, required = true) samples: List<MultipartFile>,
                      @RequestParam(name = APP_ID, required = true) appId: String,
                      @RequestParam(name = APP_SECRET, required = true) appSecret: String,
