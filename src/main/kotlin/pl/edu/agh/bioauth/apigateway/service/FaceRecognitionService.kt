@@ -26,12 +26,12 @@ import pl.edu.agh.bioauth.apigateway.repository.BiometricPatternRepository
 import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.APP_ID
 import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.SAMPLE
 import pl.edu.agh.bioauth.apigateway.util.KeyGenerator
+import pl.edu.agh.bioauth.apigateway.util.SignUtil
 import pl.edu.agh.bioauth.apigateway.util.addAll
 import pl.edu.agh.bioauth.apigateway.util.stringValue
 import pl.edu.agh.bioauth.apigateway.util.toFile
 import pl.edu.agh.bioauth.apigateway.util.toPrivateKey
 import java.io.File
-import java.security.PrivateKey
 
 @Service
 class FaceRecognitionService(private val appRepository: AppRepository,
@@ -63,7 +63,7 @@ class FaceRecognitionService(private val appRepository: AppRepository,
                 if (statusCode == HttpStatus.OK) {
                     body?.userId?.let{ userId ->
                         val pattern = biometricPatternRepository.findByAppIdAndUserId(app._id, userId)
-                        val signedChallenge = signChallenge(challenge, pattern.privateKey.toPrivateKey())
+                        val signedChallenge = SignUtil.signString(challenge, pattern.privateKey.toPrivateKey())
                         return AuthenticateResponse(userId, signedChallenge)
                     } ?: throw AuthenticationFailedException()
                 } else {
@@ -89,9 +89,5 @@ class FaceRecognitionService(private val appRepository: AppRepository,
         val requestBody = LinkedMultiValueMap<String, Any>().apply { addAll(params) }
 
         return HttpEntity(requestBody, httpHeaders)
-    }
-
-    private fun signChallenge(challenge: String, privateKey: PrivateKey): String {
-        return ""
     }
 }
