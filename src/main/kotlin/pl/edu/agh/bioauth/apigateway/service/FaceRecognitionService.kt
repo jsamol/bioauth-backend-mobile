@@ -30,11 +30,11 @@ import pl.edu.agh.bioauth.apigateway.util.toFile
 import java.io.File
 
 @Service
-class AuthService(private val appRepository: AppRepository,
-                  private val biometricPatternRepository: BiometricPatternRepository,
-                  private val gridFsTemplate: GridFsTemplate,
-                  private val applicationProperties: ApplicationProperties,
-                  restTemplateBuilder: RestTemplateBuilder) {
+class FaceRecognitionService(private val appRepository: AppRepository,
+                             private val biometricPatternRepository: BiometricPatternRepository,
+                             private val gridFsTemplate: GridFsTemplate,
+                             private val applicationProperties: ApplicationProperties,
+                             restTemplateBuilder: RestTemplateBuilder) {
 
     private val restTemplate: RestTemplate by lazy { restTemplateBuilder.build() }
 
