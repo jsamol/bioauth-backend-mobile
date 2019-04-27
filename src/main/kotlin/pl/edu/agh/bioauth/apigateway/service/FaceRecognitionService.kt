@@ -30,6 +30,7 @@ import pl.edu.agh.bioauth.apigateway.util.SignUtil
 import pl.edu.agh.bioauth.apigateway.util.addAll
 import pl.edu.agh.bioauth.apigateway.util.stringValue
 import pl.edu.agh.bioauth.apigateway.util.toFile
+import pl.edu.agh.bioauth.apigateway.util.toMultipartEntity
 import pl.edu.agh.bioauth.apigateway.util.toPrivateKey
 import java.io.File
 
@@ -76,17 +77,20 @@ class FaceRecognitionService(private val appRepository: AppRepository,
     }
 
     private fun recognize(sample: File, appId: String): ResponseEntity<RecognitionResponse> {
-        val requestParams = mapOf(
-                SAMPLE to sample,
-                APP_ID to appId
-        )
-        val requestEntity = getMultipartRequest(requestParams)
+        val files = mapOf(SAMPLE to sample)
+        val data = mapOf(APP_ID to appId)
+        val requestEntity = getMultipartRequest(files, data)
         return restTemplate.postForEntity(applicationProperties.faceRecognitionPath, requestEntity)
     }
 
-    private fun getMultipartRequest(params: Map<String, Any>): HttpEntity<MultiValueMap<String, Any>> {
+    private fun getMultipartRequest(files: Map<String, File>, data: Map<String, Any>): HttpEntity<MultiValueMap<String, Any>> {
         val httpHeaders = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
-        val requestBody = LinkedMultiValueMap<String, Any>().apply { addAll(params) }
+        val fileEntities = files.mapValues { it.value.toMultipartEntity() }
+
+        val requestBody = LinkedMultiValueMap<String, Any>().apply {
+            addAll(fileEntities)
+            addAll(data)
+        }
 
         return HttpEntity(requestBody, httpHeaders)
     }
