@@ -1,5 +1,6 @@
 package pl.edu.agh.bioauth.apigateway.util
 
+import org.springframework.util.MultiValueMap
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 import java.security.KeyFactory
@@ -27,3 +28,7 @@ val PublicKey.stringValue: String
 
         return Base64.getEncoder().encodeToString(keySpec.encoded)
     }
+
+fun <K, V> MultiValueMap<K, V>.addAll(map: Map<K, V>) {
+    map.forEach { add(it.key, it.value) }
+}

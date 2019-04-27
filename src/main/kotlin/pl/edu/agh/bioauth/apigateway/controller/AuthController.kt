@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import pl.edu.agh.bioauth.apigateway.exception.AppNotFoundException
+import pl.edu.agh.bioauth.apigateway.exception.FaceRecognitionFailedException
 import pl.edu.agh.bioauth.apigateway.model.network.ApiResponse
 import pl.edu.agh.bioauth.apigateway.model.network.ErrorResponse
 import pl.edu.agh.bioauth.apigateway.service.AuthService
@@ -17,6 +18,7 @@ import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.APP_SECRET
 import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.CHALLENGE
 import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.SAMPLES
 import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.USER_ID
+import javax.xml.ws.Response
 
 @RestController
 @RequestMapping("/auth")
@@ -32,7 +34,7 @@ class AuthController(private val authService: AuthService) {
             } catch (e: AppNotFoundException) {
                 ResponseEntity
                         .status(HttpStatus.UNAUTHORIZED)
-                        .body(ErrorResponse.getInvalidAppCredentialsError("/auth/register"))
+                        .body(ErrorResponse.getInvalidAppCredentialsError(REGISTER_PATH))
             }
 
     @RequestMapping("/authenticate", method = [RequestMethod.POST], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
@@ -45,6 +47,15 @@ class AuthController(private val authService: AuthService) {
             } catch (e: AppNotFoundException) {
                 ResponseEntity
                         .status(HttpStatus.UNAUTHORIZED)
-                        .body(ErrorResponse.getInvalidAppCredentialsError("/auth/authenticate"))
+                        .body(ErrorResponse.getInvalidAppCredentialsError(AUTHENTICATE_PATH))
+            } catch (e: FaceRecognitionFailedException) {
+                ResponseEntity
+                        .status(e.status)
+                        .body(ErrorResponse.getFaceRecognitionFailedError(e.status, AUTHENTICATE_PATH))
             }
+
+    companion object {
+        private const val REGISTER_PATH = "/auth/register"
+        private const val AUTHENTICATE_PATH = "/auth/authenticate"
+    }
 }
