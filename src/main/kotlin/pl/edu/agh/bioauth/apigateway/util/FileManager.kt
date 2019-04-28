@@ -15,8 +15,15 @@ object FileManager {
             return dir
         }
 
-    fun createFile(fileName: String?): File {
-        val name = fileName ?: "${UUID.randomUUID()}_${System.currentTimeMillis()}"
-        return File(fileDir, name)
-    }
+    private val tempDirPath: String = System.getProperty("java.io.tmpdir")
+    private val tempDir: File = File(tempDirPath)
+
+    private val randomFileName: String
+        get() = "${UUID.randomUUID()}_${System.currentTimeMillis()}"
+
+    fun createFile(fileName: String?): File = createFile(fileDir, fileName)
+
+    fun createTempFile(fileName: String?): File = createFile(tempDir, fileName)
+
+    private fun createFile(dir: File, fileName: String?) = File(dir, fileName ?: randomFileName)
 }

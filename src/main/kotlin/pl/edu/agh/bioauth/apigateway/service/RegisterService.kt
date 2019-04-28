@@ -6,7 +6,7 @@ import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
 import pl.edu.agh.bioauth.apigateway.model.network.api.RegisterResponse
 import pl.edu.agh.bioauth.apigateway.util.KeyGenerator
 import pl.edu.agh.bioauth.apigateway.util.extension.stringValue
-import pl.edu.agh.bioauth.apigateway.util.extension.toFile
+import pl.edu.agh.bioauth.apigateway.util.extension.save
 import java.security.KeyPair
 
 abstract class RegisterService : BioAuthService() {
@@ -28,7 +28,4 @@ abstract class RegisterService : BioAuthService() {
 
         return RegisterResponse(keyPair.public.stringValue)
     }
-
-    private fun saveSamples(samples: List<MultipartFile>): List<String> =
-            samples.map(MultipartFile::toFile).map { it.absolutePath }
 }

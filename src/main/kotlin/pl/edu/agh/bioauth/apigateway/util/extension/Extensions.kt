@@ -16,7 +16,9 @@ import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 import java.util.*
 
-fun MultipartFile.toFile(): File = FileManager.createFile(originalFilename).also { transferTo(it) }
+fun MultipartFile.save(): String = FileManager.createFile(originalFilename).also { transferTo(it) }.absolutePath
+
+fun MultipartFile.saveTemp(): String = FileManager.createTempFile(originalFilename).also { transferTo(it) }.absolutePath
 
 fun File.toMultipartEntity(entityName: String): HttpEntity<File> {
     val contentDisposition = ContentDisposition
