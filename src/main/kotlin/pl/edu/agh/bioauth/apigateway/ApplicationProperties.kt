@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 @ConfigurationProperties(prefix = "bioauth")
 class ApplicationProperties {
 
-    val faceRecognitionPath: String by lazy { "${service["face-recognition"]?.get("uri")}/authenticate" }
+    val faceRecognitionPath: String by lazy { "${service["face-recognition"]?.get("uri")}/recognize" }
 
     lateinit var service: Map<String, Map<String, String>>
 }

@@ -24,7 +24,7 @@ import pl.edu.agh.bioauth.apigateway.model.network.service.RecognitionResponse
 import pl.edu.agh.bioauth.apigateway.repository.AppRepository
 import pl.edu.agh.bioauth.apigateway.repository.BiometricPatternRepository
 import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.APP_ID
-import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.SAMPLE
+import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.SAMPLES
 import pl.edu.agh.bioauth.apigateway.util.KeyGenerator
 import pl.edu.agh.bioauth.apigateway.util.SignUtil
 import pl.edu.agh.bioauth.apigateway.util.addAll
@@ -59,7 +59,7 @@ class FaceRecognitionService(private val appRepository: AppRepository,
     @Throws(AppNotFoundException::class, RecognitionFailedException::class, AuthenticationFailedException::class)
     fun authenticate(samples: List<MultipartFile>, appId: String, appSecret: String, challenge: String): AuthenticateResponse {
         appRepository.findByAppIdAndAppSecret(appId, appSecret)?.let { app ->
-            val response = recognize(samples[0].toFile(), app.id)
+            val response = recognize(samples.map(MultipartFile::toFile), app.id)
             with (response) {
                 if (statusCode == HttpStatus.OK) {
                     body?.userId?.let{ userId ->
@@ -76,19 +76,21 @@ class FaceRecognitionService(private val appRepository: AppRepository,
         throw AppNotFoundException()
     }
 
-    private fun recognize(sample: File, appId: String): ResponseEntity<RecognitionResponse> {
-        val files = mapOf(SAMPLE to sample)
+    private fun recognize(samples: List<File>, appId: String): ResponseEntity<RecognitionResponse> {
+        val files = mapOf(SAMPLES to samples)
         val data = mapOf(APP_ID to appId)
         val requestEntity = getMultipartRequest(files, data)
         return restTemplate.postForEntity(applicationProperties.faceRecognitionPath, requestEntity)
     }
 
-    private fun getMultipartRequest(files: Map<String, File>, data: Map<String, Any>): HttpEntity<MultiValueMap<String, Any>> {
+    private fun getMultipartRequest(files: Map<String, List<File>>, data: Map<String, Any>): HttpEntity<MultiValueMap<String, Any>> {
         val httpHeaders = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
-        val fileEntities = files.mapValues { it.value.toMultipartEntity() }
+        val fileEntities = files.mapValues { it.value.map { file -> file.toMultipartEntity(it.key) } }
 
         val requestBody = LinkedMultiValueMap<String, Any>().apply {
-            addAll(fileEntities)
+            fileEntities.forEach { (key, files) ->
+                files.forEach { add(key, it) }
+            }
             addAll(data)
         }
 

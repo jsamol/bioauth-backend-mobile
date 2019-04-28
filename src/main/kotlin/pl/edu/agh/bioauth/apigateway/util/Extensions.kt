@@ -17,10 +17,10 @@ import java.util.*
 
 fun MultipartFile.toFile(): File = File(System.getProperty("java.io.tmpdir"), originalFilename).also { transferTo(it) }
 
-fun File.toMultipartEntity(): HttpEntity<File> {
+fun File.toMultipartEntity(entityName: String): HttpEntity<File> {
     val contentDisposition = ContentDisposition
             .builder("form-data")
-            .name("file")
+            .name(entityName)
             .filename(name)
             .build()
     val fileMap = LinkedMultiValueMap<String, String>().apply {
