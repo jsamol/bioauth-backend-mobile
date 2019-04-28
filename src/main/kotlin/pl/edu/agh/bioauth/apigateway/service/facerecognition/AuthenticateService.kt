@@ -1,4 +1,4 @@
-package pl.edu.agh.bioauth.apigateway.service
+package pl.edu.agh.bioauth.apigateway.service.facerecognition
 
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.data.mongodb.gridfs.GridFsTemplate
@@ -17,44 +17,25 @@ import pl.edu.agh.bioauth.apigateway.ApplicationProperties
 import pl.edu.agh.bioauth.apigateway.exception.AppNotFoundException
 import pl.edu.agh.bioauth.apigateway.exception.AuthenticationFailedException
 import pl.edu.agh.bioauth.apigateway.exception.RecognitionFailedException
-import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
 import pl.edu.agh.bioauth.apigateway.model.network.api.AuthenticateResponse
-import pl.edu.agh.bioauth.apigateway.model.network.api.RegisterResponse
 import pl.edu.agh.bioauth.apigateway.model.network.service.RecognitionResponse
 import pl.edu.agh.bioauth.apigateway.repository.AppRepository
 import pl.edu.agh.bioauth.apigateway.repository.BiometricPatternRepository
-import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.APP_ID
-import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.SAMPLES
-import pl.edu.agh.bioauth.apigateway.util.KeyGenerator
+import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam
 import pl.edu.agh.bioauth.apigateway.util.SignUtil
 import pl.edu.agh.bioauth.apigateway.util.addAll
-import pl.edu.agh.bioauth.apigateway.util.stringValue
 import pl.edu.agh.bioauth.apigateway.util.toFile
 import pl.edu.agh.bioauth.apigateway.util.toMultipartEntity
 import pl.edu.agh.bioauth.apigateway.util.toPrivateKey
 import java.io.File
 
 @Service
-class FaceRecognitionService(private val appRepository: AppRepository,
-                             private val biometricPatternRepository: BiometricPatternRepository,
-                             private val gridFsTemplate: GridFsTemplate,
-                             private val applicationProperties: ApplicationProperties,
-                             restTemplateBuilder: RestTemplateBuilder) {
+class AuthenticateService(private val appRepository: AppRepository,
+                          private val biometricPatternRepository: BiometricPatternRepository,
+                          private val applicationProperties: ApplicationProperties,
+                          restTemplateBuilder: RestTemplateBuilder) {
 
     private val restTemplate: RestTemplate by lazy { restTemplateBuilder.build() }
-
-    @Throws(AppNotFoundException::class)
-    fun registerPattern(samples: List<MultipartFile>, appId: String, appSecret: String, userId: String): RegisterResponse {
-        appRepository.findByAppIdAndAppSecret(appId, appSecret)?.let { app ->
-            val fileIds = samples.map(MultipartFile::toFile).map { gridFsTemplate.store(it.inputStream(), it.name) }
-            val keyPair = KeyGenerator.getKeyPair()
-            biometricPatternRepository.save(BiometricPattern(fileIds, app._id, userId, keyPair.private.stringValue))
-
-            return RegisterResponse(keyPair.public.stringValue)
-        }
-
-        throw AppNotFoundException()
-    }
 
     @Throws(AppNotFoundException::class, RecognitionFailedException::class, AuthenticationFailedException::class)
     fun authenticate(samples: List<MultipartFile>, appId: String, appSecret: String, challenge: String): AuthenticateResponse {
@@ -77,8 +58,8 @@ class FaceRecognitionService(private val appRepository: AppRepository,
     }
 
     private fun recognize(samples: List<File>, appId: String): ResponseEntity<RecognitionResponse> {
-        val files = mapOf(SAMPLES to samples)
-        val data = mapOf(APP_ID to appId)
+        val files = mapOf(AuthRequestParam.SAMPLES to samples)
+        val data = mapOf(AuthRequestParam.APP_ID to appId)
         val requestEntity = getMultipartRequest(files, data)
         return restTemplate.postForEntity(applicationProperties.faceRecognitionPath, requestEntity)
     }

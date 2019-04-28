@@ -13,7 +13,8 @@ import pl.edu.agh.bioauth.apigateway.exception.AuthenticationFailedException
 import pl.edu.agh.bioauth.apigateway.exception.RecognitionFailedException
 import pl.edu.agh.bioauth.apigateway.model.network.api.ApiResponse
 import pl.edu.agh.bioauth.apigateway.model.network.api.ErrorResponse
-import pl.edu.agh.bioauth.apigateway.service.FaceRecognitionService
+import pl.edu.agh.bioauth.apigateway.service.facerecognition.AuthenticateService
+import pl.edu.agh.bioauth.apigateway.service.facerecognition.RegisterService
 import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.APP_ID
 import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.APP_SECRET
 import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.CHALLENGE
@@ -22,7 +23,8 @@ import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.USER_ID
 
 @RestController
 @RequestMapping("/auth/face")
-class FaceRecognitionController(private val faceRecognitionService: FaceRecognitionService) {
+class FaceRecognitionController(private val registerService: RegisterService,
+                                private val authenticateService: AuthenticateService) {
 
     @RequestMapping("/register", method = [RequestMethod.POST], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun register(@RequestParam(name = SAMPLES, required = true) samples: List<MultipartFile>,
@@ -30,7 +32,7 @@ class FaceRecognitionController(private val faceRecognitionService: FaceRecognit
                  @RequestParam(name = APP_SECRET, required = true) appSecret: String,
                  @RequestParam(name = USER_ID, required = true) userId: String): ResponseEntity<ApiResponse> =
             try {
-                ResponseEntity.ok(faceRecognitionService.registerPattern(samples, appId, appSecret, userId))
+                ResponseEntity.ok(registerService.registerPattern(samples, appId, appSecret, userId))
             } catch (e: AppNotFoundException) {
                 ResponseEntity
                         .status(HttpStatus.UNAUTHORIZED)
@@ -43,7 +45,7 @@ class FaceRecognitionController(private val faceRecognitionService: FaceRecognit
                      @RequestParam(name = APP_SECRET, required = true) appSecret: String,
                      @RequestParam(name = CHALLENGE, required = true) challenge: String): ResponseEntity<ApiResponse> =
             try {
-                ResponseEntity.ok(faceRecognitionService.authenticate(samples, appId, appSecret, challenge))
+                ResponseEntity.ok(authenticateService.authenticate(samples, appId, appSecret, challenge))
             } catch (e: AppNotFoundException) {
                 ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
