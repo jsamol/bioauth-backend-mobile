@@ -3,7 +3,7 @@ package pl.edu.agh.bioauth.apigateway.model.network.api
 import org.springframework.http.HttpStatus
 import java.util.*
 
-class ErrorResponse(val timestamp: Date,
+data class ErrorResponse(val timestamp: Date,
                     val status: Int,
                     val error: String,
                     val message: String,

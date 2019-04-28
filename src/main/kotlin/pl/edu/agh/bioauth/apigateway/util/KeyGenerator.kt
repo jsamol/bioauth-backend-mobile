@@ -5,7 +5,7 @@ import java.security.KeyPairGenerator
 import java.security.SecureRandom
 
 object KeyGenerator {
-    private const val KEY_SIZE = 2048
+    private const val KEY_SIZE = 1024
 
     const val KEY_ALGORITHM: String = "RSA"
 

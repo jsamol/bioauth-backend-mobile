@@ -18,11 +18,11 @@ import pl.edu.agh.bioauth.apigateway.exception.AuthenticationFailedException
 import pl.edu.agh.bioauth.apigateway.exception.ServiceFailureException
 import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
 import pl.edu.agh.bioauth.apigateway.model.network.api.AuthenticateResponse
-import pl.edu.agh.bioauth.apigateway.model.network.service.RecognitionResponse
+import pl.edu.agh.bioauth.apigateway.model.network.service.request.RecognitionRequest
+import pl.edu.agh.bioauth.apigateway.model.network.service.response.RecognitionResponse
 import pl.edu.agh.bioauth.apigateway.util.constant.BioAuthRequestParam
 import pl.edu.agh.bioauth.apigateway.util.SignUtil
 import pl.edu.agh.bioauth.apigateway.util.extension.addAll
-import pl.edu.agh.bioauth.apigateway.util.extension.toFile
 import pl.edu.agh.bioauth.apigateway.util.extension.toMultipartEntity
 import pl.edu.agh.bioauth.apigateway.util.extension.toPrivateKey
 import java.io.File
@@ -47,7 +47,12 @@ abstract class AuthenticateService : BioAuthService() {
                                    type: BiometricPattern.Type): AuthenticateResponse {
 
         val app = getApp(appId, appSecret) ?: failWithAppNotFound()
-        val response = recognize(samples.map(MultipartFile::toFile), app.id, type)
+        val biometricPatterns = biometricPatternRepository.findByAppId(app._id)
+
+        val samplePaths = saveSamples(samples, temp = true)
+        val patterns = biometricPatterns.map { it.userId to it.filePaths }.toMap()
+
+        val response = recognize(RecognitionRequest(samplePaths, patterns), type)
 
         with (response) {
             if (statusCode == HttpStatus.OK) {
@@ -64,27 +69,16 @@ abstract class AuthenticateService : BioAuthService() {
     }
 
     @Throws(ServiceFailureException::class)
-    private fun recognize(samples: List<File>, appId: String, type: BiometricPattern.Type): ResponseEntity<RecognitionResponse> {
-        val files = mapOf(BioAuthRequestParam.SAMPLES to samples)
-        val data = mapOf(BioAuthRequestParam.APP_ID to appId)
-        val requestEntity = getMultipartRequest(files, data)
+    private fun recognize(recognitionRequest: RecognitionRequest, type: BiometricPattern.Type): ResponseEntity<RecognitionResponse> {
+        val requestEntity = getHttpRequest(recognitionRequest)
         val path = applicationProperties.biometricMethodsPaths[type] ?: failWithServiceError(HttpStatus.BAD_REQUEST.value())
 
         return restTemplate.postForEntity(path, requestEntity)
     }
 
-    private fun getMultipartRequest(files: Map<String, List<File>>, data: Map<String, Any>): HttpEntity<MultiValueMap<String, Any>> {
-        val httpHeaders = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
-        val fileEntities = files.mapValues { it.value.map { file -> file.toMultipartEntity(it.key) } }
-
-        val requestBody = LinkedMultiValueMap<String, Any>().apply {
-            fileEntities.forEach { (key, files) ->
-                files.forEach { add(key, it) }
-            }
-            addAll(data)
-        }
-
-        return HttpEntity(requestBody, httpHeaders)
+    private fun getHttpRequest(recognitionRequest: RecognitionRequest): HttpEntity<RecognitionRequest> {
+        val httpHeaders = HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON }
+        return HttpEntity(recognitionRequest, httpHeaders)
     }
 
     private fun failWithServiceError(status: Int): Nothing = throw ServiceFailureException(status)
