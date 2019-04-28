@@ -1,4 +1,4 @@
-package pl.edu.agh.bioauth.apigateway.util
+package pl.edu.agh.bioauth.apigateway.util.extension
 
 import org.springframework.http.ContentDisposition
 import org.springframework.http.HttpEntity
@@ -6,13 +6,13 @@ import org.springframework.http.HttpHeaders
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import org.springframework.web.multipart.MultipartFile
+import pl.edu.agh.bioauth.apigateway.util.KeyGenerator
 import java.io.File
 import java.security.KeyFactory
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
-import java.text.SimpleDateFormat
 import java.util.*
 
 fun MultipartFile.toFile(): File = File(System.getProperty("java.io.tmpdir"), originalFilename).also { transferTo(it) }

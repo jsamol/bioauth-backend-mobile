@@ -9,7 +9,7 @@ import pl.edu.agh.bioauth.apigateway.exception.ServiceFailureException
 import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
 import pl.edu.agh.bioauth.apigateway.model.network.api.AuthenticateResponse
 import pl.edu.agh.bioauth.apigateway.service.AuthenticateService
-import pl.edu.agh.bioauth.apigateway.util.Qualifier.FACE_RECOGNITION
+import pl.edu.agh.bioauth.apigateway.util.constant.BioAuthQualifier.FACE_RECOGNITION
 
 @Service
 @Qualifier(FACE_RECOGNITION)

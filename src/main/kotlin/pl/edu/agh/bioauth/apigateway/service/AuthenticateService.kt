@@ -19,12 +19,12 @@ import pl.edu.agh.bioauth.apigateway.exception.ServiceFailureException
 import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
 import pl.edu.agh.bioauth.apigateway.model.network.api.AuthenticateResponse
 import pl.edu.agh.bioauth.apigateway.model.network.service.RecognitionResponse
-import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam
+import pl.edu.agh.bioauth.apigateway.util.constant.BioAuthRequestParam
 import pl.edu.agh.bioauth.apigateway.util.SignUtil
-import pl.edu.agh.bioauth.apigateway.util.addAll
-import pl.edu.agh.bioauth.apigateway.util.toFile
-import pl.edu.agh.bioauth.apigateway.util.toMultipartEntity
-import pl.edu.agh.bioauth.apigateway.util.toPrivateKey
+import pl.edu.agh.bioauth.apigateway.util.extension.addAll
+import pl.edu.agh.bioauth.apigateway.util.extension.toFile
+import pl.edu.agh.bioauth.apigateway.util.extension.toMultipartEntity
+import pl.edu.agh.bioauth.apigateway.util.extension.toPrivateKey
 import java.io.File
 
 abstract class AuthenticateService : BioAuthService() {
@@ -65,8 +65,8 @@ abstract class AuthenticateService : BioAuthService() {
 
     @Throws(ServiceFailureException::class)
     private fun recognize(samples: List<File>, appId: String, type: BiometricPattern.Type): ResponseEntity<RecognitionResponse> {
-        val files = mapOf(AuthRequestParam.SAMPLES to samples)
-        val data = mapOf(AuthRequestParam.APP_ID to appId)
+        val files = mapOf(BioAuthRequestParam.SAMPLES to samples)
+        val data = mapOf(BioAuthRequestParam.APP_ID to appId)
         val requestEntity = getMultipartRequest(files, data)
         val path = applicationProperties.biometricMethodsPaths[type] ?: failWithServiceError(HttpStatus.BAD_REQUEST.value())
 

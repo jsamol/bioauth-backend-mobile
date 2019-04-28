@@ -12,12 +12,12 @@ import pl.edu.agh.bioauth.apigateway.controller.BioAuthController
 import pl.edu.agh.bioauth.apigateway.model.network.api.ApiResponse
 import pl.edu.agh.bioauth.apigateway.service.AuthenticateService
 import pl.edu.agh.bioauth.apigateway.service.RegisterService
-import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.APP_ID
-import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.APP_SECRET
-import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.CHALLENGE
-import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.SAMPLES
-import pl.edu.agh.bioauth.apigateway.util.AuthRequestParam.USER_ID
-import pl.edu.agh.bioauth.apigateway.util.Qualifier.FACE_RECOGNITION
+import pl.edu.agh.bioauth.apigateway.util.constant.BioAuthRequestParam.APP_ID
+import pl.edu.agh.bioauth.apigateway.util.constant.BioAuthRequestParam.APP_SECRET
+import pl.edu.agh.bioauth.apigateway.util.constant.BioAuthRequestParam.CHALLENGE
+import pl.edu.agh.bioauth.apigateway.util.constant.BioAuthRequestParam.SAMPLES
+import pl.edu.agh.bioauth.apigateway.util.constant.BioAuthRequestParam.USER_ID
+import pl.edu.agh.bioauth.apigateway.util.constant.BioAuthQualifier.FACE_RECOGNITION
 
 @RestController
 @RequestMapping("/auth/face")

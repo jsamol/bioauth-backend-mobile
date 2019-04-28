@@ -8,8 +8,8 @@ import pl.edu.agh.bioauth.apigateway.exception.AppNotFoundException
 import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
 import pl.edu.agh.bioauth.apigateway.model.network.api.RegisterResponse
 import pl.edu.agh.bioauth.apigateway.util.KeyGenerator
-import pl.edu.agh.bioauth.apigateway.util.stringValue
-import pl.edu.agh.bioauth.apigateway.util.toFile
+import pl.edu.agh.bioauth.apigateway.util.extension.stringValue
+import pl.edu.agh.bioauth.apigateway.util.extension.toFile
 import java.security.KeyPair
 
 abstract class RegisterService : BioAuthService() {
