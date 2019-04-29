@@ -5,7 +5,8 @@ import java.util.*
 
 object FileManager {
 
-    private val fileDirPath: String = "${System.getProperty("user.home")}${File.separator}bioauth"
+    private val fileDirPath: String =
+            "${System.getProperty("user.home")}${File.separator}bioauth${File.separator}data${File.separator}patterns"
     private val fileDir: File
         get() {
             val dir = File(fileDirPath)
