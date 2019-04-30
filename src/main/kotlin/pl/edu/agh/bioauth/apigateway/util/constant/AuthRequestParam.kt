@@ -1,6 +1,6 @@
 package pl.edu.agh.bioauth.apigateway.util.constant
 
-object BioAuthRequestParam {
+object AuthRequestParam {
     const val SAMPLES = "samples"
     const val APP_ID = "appId"
     const val APP_SECRET = "appSecret"

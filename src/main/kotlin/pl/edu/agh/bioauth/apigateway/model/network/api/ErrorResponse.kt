@@ -3,24 +3,30 @@ package pl.edu.agh.bioauth.apigateway.model.network.api
 import org.springframework.http.HttpStatus
 import java.util.*
 
-data class ErrorResponse(val timestamp: Date,
-                    val status: Int,
-                    val error: String,
-                    val message: String,
-                    val path: String) : ApiResponse {
+abstract class ErrorResponse(httpStatus: HttpStatus,
+                             val error: String,
+                             val message: String,
+                             val path: String,
+                             val timestamp: Date = Date()) : ApiResponse {
+
+    val status: Int = httpStatus.value()
+
+    class InvalidAppCredentials(path: String)
+        : ErrorResponse(HttpStatus.BAD_REQUEST, ERROR_INVALID_APP_CREDENTIALS, ERROR_INVALID_APP_CREDENTIALS, path)
+
+    class ServiceFailure(status: HttpStatus, path: String)
+        : ErrorResponse(status, ERROR_SERVICE, ERROR_SERVICE, path)
+
+    class AuthenticationFailure(path: String)
+        : ErrorResponse(HttpStatus.UNAUTHORIZED, ERROR_UNAUTHORIZED, ERROR_UNAUTHORIZED, path)
+
+    class InternalFailure(path: String)
+        : ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_INTERNAL, ERROR_INTERNAL, path)
 
     companion object {
-        private const val ERROR_INVALID_APP_CREDENTIALS = "Invalid App Credentials"
+        private const val ERROR_INVALID_APP_CREDENTIALS = "Invalid app credentials"
         private const val ERROR_UNAUTHORIZED = "Unauthorized"
-        private const val ERROR_RECOGNITION = "Recognition Error"
-
-        fun getInvalidAppCredentialsError(path: String): ErrorResponse =
-                ErrorResponse(Date(), HttpStatus.BAD_REQUEST.value(), ERROR_INVALID_APP_CREDENTIALS, ERROR_INVALID_APP_CREDENTIALS, path)
-
-        fun getRecognitionFailedError(status: Int, path: String): ErrorResponse =
-                ErrorResponse(Date(), status, ERROR_RECOGNITION, ERROR_RECOGNITION, path)
-
-        fun getAuthenticationFailedError(path: String): ErrorResponse =
-                ErrorResponse(Date(), HttpStatus.UNAUTHORIZED.value(), ERROR_UNAUTHORIZED, ERROR_UNAUTHORIZED, path)
+        private const val ERROR_SERVICE = "Biometric service error"
+        private const val ERROR_INTERNAL = "Internal server error"
     }
 }

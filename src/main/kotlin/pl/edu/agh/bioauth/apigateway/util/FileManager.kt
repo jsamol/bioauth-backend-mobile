@@ -11,7 +11,7 @@ object FileManager {
         get() {
             val dir = File(fileDirPath)
             if (!dir.exists()) {
-                dir.mkdir()
+                dir.mkdirs()
             }
             return dir
         }
