@@ -7,7 +7,7 @@ import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
 import pl.edu.agh.bioauth.apigateway.model.network.api.RegisterResponse
 import pl.edu.agh.bioauth.apigateway.service.helper.DatabaseService
 import pl.edu.agh.bioauth.apigateway.service.helper.ErrorService
-import pl.edu.agh.bioauth.apigateway.util.KeyGenerator
+import pl.edu.agh.bioauth.apigateway.service.helper.SecurityService
 import pl.edu.agh.bioauth.apigateway.util.extension.getPaths
 import pl.edu.agh.bioauth.apigateway.util.extension.saveAll
 import pl.edu.agh.bioauth.apigateway.util.extension.stringValue
@@ -19,10 +19,12 @@ abstract class RegisterService {
     private lateinit var databaseService: DatabaseService
 
     @Autowired
+    private lateinit var securityService: SecurityService
+
+    @Autowired
     private lateinit var errorService: ErrorService
 
-    private val keyPair: KeyPair
-        get() = KeyGenerator.getKeyPair()
+    private val keyPair: KeyPair by lazy { securityService.getKeyPair() }
 
     @Throws(AppNotFoundException::class)
     abstract fun register(samples: List<MultipartFile>, appId: String, appSecret: String, userId: String): RegisterResponse

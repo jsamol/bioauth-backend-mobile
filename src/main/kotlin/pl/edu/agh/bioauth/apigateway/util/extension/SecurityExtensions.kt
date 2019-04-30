@@ -1,6 +1,6 @@
 package pl.edu.agh.bioauth.apigateway.util.extension
 
-import pl.edu.agh.bioauth.apigateway.util.KeyGenerator
+import pl.edu.agh.bioauth.apigateway.service.helper.SecurityService
 import java.security.KeyFactory
 import java.security.PrivateKey
 import java.security.PublicKey
@@ -10,7 +10,7 @@ import java.util.*
 
 val PrivateKey.stringValue: String
     get() {
-        val keyFactory = KeyFactory.getInstance(KeyGenerator.KEY_ALGORITHM)
+        val keyFactory = KeyFactory.getInstance(SecurityService.KEY_ALGORITHM)
         val keySpec = keyFactory.getKeySpec(this, PKCS8EncodedKeySpec::class.java)
 
         return Base64.getEncoder().encodeToString(keySpec.encoded)
@@ -18,7 +18,7 @@ val PrivateKey.stringValue: String
 
 val PublicKey.stringValue: String
     get() {
-        val keyFactory = KeyFactory.getInstance(KeyGenerator.KEY_ALGORITHM)
+        val keyFactory = KeyFactory.getInstance(SecurityService.KEY_ALGORITHM)
         val keySpec = keyFactory.getKeySpec(this, X509EncodedKeySpec::class.java)
 
         return Base64.getEncoder().encodeToString(keySpec.encoded)
@@ -26,7 +26,7 @@ val PublicKey.stringValue: String
 
 fun String.toPrivateKey(): PrivateKey {
     val keySpec = PKCS8EncodedKeySpec(Base64.getDecoder().decode(this))
-    val keyFactory = KeyFactory.getInstance(KeyGenerator.KEY_ALGORITHM)
+    val keyFactory = KeyFactory.getInstance(SecurityService.KEY_ALGORITHM)
 
     return keyFactory.generatePrivate(keySpec)
 }

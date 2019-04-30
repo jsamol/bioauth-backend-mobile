@@ -15,7 +15,7 @@ import pl.edu.agh.bioauth.apigateway.model.network.service.response.RecognitionR
 import pl.edu.agh.bioauth.apigateway.service.helper.DatabaseService
 import pl.edu.agh.bioauth.apigateway.service.helper.ErrorService
 import pl.edu.agh.bioauth.apigateway.service.helper.HttpService
-import pl.edu.agh.bioauth.apigateway.util.SignUtil
+import pl.edu.agh.bioauth.apigateway.service.helper.SecurityService
 import pl.edu.agh.bioauth.apigateway.util.extension.getPaths
 import pl.edu.agh.bioauth.apigateway.util.extension.saveAll
 import pl.edu.agh.bioauth.apigateway.util.extension.toPrivateKey
@@ -27,6 +27,9 @@ abstract class AuthenticateService {
 
     @Autowired
     private lateinit var httpService: HttpService
+
+    @Autowired
+    private lateinit var securityService: SecurityService
 
     @Autowired
     private lateinit var errorService: ErrorService
@@ -55,7 +58,7 @@ abstract class AuthenticateService {
             if (statusCode == HttpStatus.OK) {
                 val userId = body?.userId ?: errorService.failWithAuthenticationError()
                 val pattern = biometricPatterns.find { it.userId == userId } ?: errorService.failWithInternalError()
-                val signedChallenge = SignUtil.signString(challenge, pattern.privateKey.toPrivateKey())
+                val signedChallenge = securityService.signString(challenge, pattern.privateKey.toPrivateKey())
 
                 return AuthenticateResponse(userId, signedChallenge)
             } else {
