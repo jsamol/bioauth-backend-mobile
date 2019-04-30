@@ -7,8 +7,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForEntity
 import org.springframework.web.multipart.MultipartFile
@@ -20,12 +18,8 @@ import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
 import pl.edu.agh.bioauth.apigateway.model.network.api.AuthenticateResponse
 import pl.edu.agh.bioauth.apigateway.model.network.service.request.RecognitionRequest
 import pl.edu.agh.bioauth.apigateway.model.network.service.response.RecognitionResponse
-import pl.edu.agh.bioauth.apigateway.util.constant.BioAuthRequestParam
 import pl.edu.agh.bioauth.apigateway.util.SignUtil
-import pl.edu.agh.bioauth.apigateway.util.extension.addAll
-import pl.edu.agh.bioauth.apigateway.util.extension.toMultipartEntity
 import pl.edu.agh.bioauth.apigateway.util.extension.toPrivateKey
-import java.io.File
 
 abstract class AuthenticateService : BioAuthService() {
 
