@@ -10,14 +10,14 @@ import pl.edu.agh.bioauth.apigateway.exception.RequestException
 import pl.edu.agh.bioauth.apigateway.model.network.api.ApiResponse
 import pl.edu.agh.bioauth.apigateway.service.AuthenticateService
 import pl.edu.agh.bioauth.apigateway.service.RegisterService
-import pl.edu.agh.bioauth.apigateway.util.constant.BioAuthRequestParam.APP_ID
-import pl.edu.agh.bioauth.apigateway.util.constant.BioAuthRequestParam.APP_SECRET
-import pl.edu.agh.bioauth.apigateway.util.constant.BioAuthRequestParam.CHALLENGE
-import pl.edu.agh.bioauth.apigateway.util.constant.BioAuthRequestParam.SAMPLES
-import pl.edu.agh.bioauth.apigateway.util.constant.BioAuthRequestParam.USER_ID
+import pl.edu.agh.bioauth.apigateway.util.constant.AuthRequestParam.APP_ID
+import pl.edu.agh.bioauth.apigateway.util.constant.AuthRequestParam.APP_SECRET
+import pl.edu.agh.bioauth.apigateway.util.constant.AuthRequestParam.CHALLENGE
+import pl.edu.agh.bioauth.apigateway.util.constant.AuthRequestParam.SAMPLES
+import pl.edu.agh.bioauth.apigateway.util.constant.AuthRequestParam.USER_ID
 
-abstract class BioAuthController(private val authenticateService: AuthenticateService,
-                                 private val registerService: RegisterService) {
+abstract class AuthController(private val authenticateService: AuthenticateService,
+                              private val registerService: RegisterService) {
 
     @RequestMapping("/register", method = [RequestMethod.POST], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun register(@RequestParam(name = SAMPLES, required = true) samples: List<MultipartFile>,
