@@ -20,12 +20,12 @@ class SecurityService {
                     .apply { initialize(KEY_SIZE, secureRandom) }
                     .genKeyPair()
 
-    fun signString(toSign: String, key: PrivateKey): ByteArray =
+    fun signString(toSign: String, key: PrivateKey): String =
             with(signature) {
                 initSign(key)
                 update(toSign.toByteArray())
                 sign()
-            }
+            }.toString()
 
     companion object {
         private const val KEY_SIZE = 1024
