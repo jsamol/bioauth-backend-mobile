@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile
 import pl.edu.agh.bioauth.apigateway.controller.facerecognition.FaceController
 import pl.edu.agh.bioauth.apigateway.exception.AppNotFoundException
 import pl.edu.agh.bioauth.apigateway.exception.AuthenticationFailedException
+import pl.edu.agh.bioauth.apigateway.exception.InternalFailureException
 import pl.edu.agh.bioauth.apigateway.exception.ServiceFailureException
 import pl.edu.agh.bioauth.apigateway.model.network.api.ApiResponse
 import pl.edu.agh.bioauth.apigateway.model.network.api.ErrorResponse
@@ -61,6 +62,10 @@ abstract class BioAuthController(private val authenticateService: AuthenticateSe
             ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(ErrorResponse.AuthenticationFailure(request.path))
+        } catch (e: InternalFailureException) {
+            ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ErrorResponse.InternalFailure(request.path))
         }
     }
 

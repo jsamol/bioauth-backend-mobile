@@ -20,9 +20,13 @@ abstract class ErrorResponse(httpStatus: HttpStatus,
     class AuthenticationFailure(path: String)
         : ErrorResponse(HttpStatus.UNAUTHORIZED, ERROR_UNAUTHORIZED, ERROR_UNAUTHORIZED, path)
 
+    class InternalFailure(path: String)
+        : ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_INTERNAL, ERROR_INTERNAL, path)
+
     companion object {
         private const val ERROR_INVALID_APP_CREDENTIALS = "Invalid app credentials"
         private const val ERROR_UNAUTHORIZED = "Unauthorized"
         private const val ERROR_SERVICE = "Biometric service error"
+        private const val ERROR_INTERNAL = "Internal server error"
     }
 }
