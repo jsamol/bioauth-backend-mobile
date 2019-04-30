@@ -37,7 +37,7 @@ abstract class BioAuthController(private val authenticateService: AuthenticateSe
         } catch (e: AppNotFoundException) {
             ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body(ErrorResponse.getInvalidAppCredentialsError(request.path))
+                    .body(ErrorResponse.InvalidAppCredentials(request.path))
         }
     }
 
@@ -52,15 +52,15 @@ abstract class BioAuthController(private val authenticateService: AuthenticateSe
         } catch (e: AppNotFoundException) {
             ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(ErrorResponse.getInvalidAppCredentialsError(request.path))
+                    .body(ErrorResponse.InvalidAppCredentials(request.path))
         } catch (e: ServiceFailureException) {
             ResponseEntity
                     .status(e.status)
-                    .body(ErrorResponse.getRecognitionFailedError(e.status, request.path))
+                    .body(ErrorResponse.ServiceFailure(e.status, request.path))
         } catch (e: AuthenticationFailedException) {
             ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body(ErrorResponse.getAuthenticationFailedError(request.path))
+                    .body(ErrorResponse.AuthenticationFailure(request.path))
         }
     }
 

@@ -1,5 +1,5 @@
 package pl.edu.agh.bioauth.apigateway.exception
 
-import java.lang.Exception
+import org.springframework.http.HttpStatus
 
-class ServiceFailureException(val status: Int) : Exception()
+class ServiceFailureException(val status: HttpStatus) : Exception()

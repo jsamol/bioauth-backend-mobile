@@ -56,7 +56,7 @@ abstract class AuthenticateService : BioAuthService() {
 
                 return AuthenticateResponse(userId, signedChallenge)
             } else {
-                failWithServiceError(statusCodeValue)
+                failWithServiceError(statusCode)
             }
         }
 
@@ -65,7 +65,7 @@ abstract class AuthenticateService : BioAuthService() {
     @Throws(ServiceFailureException::class)
     private fun recognize(recognitionRequest: RecognitionRequest, type: BiometricPattern.Type): ResponseEntity<RecognitionResponse> {
         val requestEntity = getHttpRequest(recognitionRequest)
-        val path = applicationProperties.biometricMethodsPaths[type] ?: failWithServiceError(HttpStatus.BAD_REQUEST.value())
+        val path = applicationProperties.biometricMethodsPaths[type] ?: failWithServiceError(HttpStatus.BAD_REQUEST)
 
         return restTemplate.postForEntity(path, requestEntity)
     }
@@ -75,7 +75,7 @@ abstract class AuthenticateService : BioAuthService() {
         return HttpEntity(recognitionRequest, httpHeaders)
     }
 
-    private fun failWithServiceError(status: Int): Nothing = throw ServiceFailureException(status)
+    private fun failWithServiceError(status: HttpStatus): Nothing = throw ServiceFailureException(status)
 
     private fun failWithAuthenticationError(): Nothing = throw AuthenticationFailedException()
 }
