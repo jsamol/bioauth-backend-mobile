@@ -7,8 +7,9 @@ import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
 import pl.edu.agh.bioauth.apigateway.model.network.api.RegisterResponse
 import pl.edu.agh.bioauth.apigateway.service.helper.DatabaseService
 import pl.edu.agh.bioauth.apigateway.service.helper.ErrorService
-import pl.edu.agh.bioauth.apigateway.service.helper.FileService
 import pl.edu.agh.bioauth.apigateway.util.KeyGenerator
+import pl.edu.agh.bioauth.apigateway.util.extension.getPaths
+import pl.edu.agh.bioauth.apigateway.util.extension.saveAll
 import pl.edu.agh.bioauth.apigateway.util.extension.stringValue
 import java.security.KeyPair
 
@@ -16,9 +17,6 @@ abstract class RegisterService {
 
     @Autowired
     private lateinit var databaseService: DatabaseService
-
-    @Autowired
-    private lateinit var fileService: FileService
 
     @Autowired
     private lateinit var errorService: ErrorService
@@ -35,7 +33,7 @@ abstract class RegisterService {
                                        type: BiometricPattern.Type) : RegisterResponse {
 
         val app = databaseService.getApp(appId, appSecret) ?: errorService.failWithAppNotFound()
-        val filePaths = fileService.saveSamples(samples)
+        val filePaths = samples.saveAll().getPaths()
         databaseService.savePattern(BiometricPattern(filePaths, app._id, userId, keyPair.private.stringValue, type))
 
         return RegisterResponse(keyPair.public.stringValue)

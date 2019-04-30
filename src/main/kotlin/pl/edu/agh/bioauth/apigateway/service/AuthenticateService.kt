@@ -14,9 +14,10 @@ import pl.edu.agh.bioauth.apigateway.model.network.service.request.RecognitionRe
 import pl.edu.agh.bioauth.apigateway.model.network.service.response.RecognitionResponse
 import pl.edu.agh.bioauth.apigateway.service.helper.DatabaseService
 import pl.edu.agh.bioauth.apigateway.service.helper.ErrorService
-import pl.edu.agh.bioauth.apigateway.service.helper.FileService
 import pl.edu.agh.bioauth.apigateway.service.helper.HttpService
 import pl.edu.agh.bioauth.apigateway.util.SignUtil
+import pl.edu.agh.bioauth.apigateway.util.extension.getPaths
+import pl.edu.agh.bioauth.apigateway.util.extension.saveAll
 import pl.edu.agh.bioauth.apigateway.util.extension.toPrivateKey
 
 abstract class AuthenticateService {
@@ -26,9 +27,6 @@ abstract class AuthenticateService {
 
     @Autowired
     private lateinit var httpService: HttpService
-
-    @Autowired
-    private lateinit var fileService: FileService
 
     @Autowired
     private lateinit var errorService: ErrorService
@@ -48,7 +46,7 @@ abstract class AuthenticateService {
         val app = databaseService.getApp(appId, appSecret) ?: errorService.failWithAppNotFound()
         val biometricPatterns = databaseService.findPatternsByApp(app._id)
 
-        val samplePaths = fileService.saveSamples(samples, temp = true)
+        val samplePaths = samples.saveAll(temp = true).getPaths()
         val patterns = biometricPatterns.map { it.userId to it.filePaths }.toMap()
 
         val response = recognize(RecognitionRequest(samplePaths, patterns), patternType)
