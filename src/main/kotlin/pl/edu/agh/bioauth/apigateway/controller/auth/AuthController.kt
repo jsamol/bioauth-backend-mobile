@@ -10,11 +10,11 @@ import pl.edu.agh.bioauth.apigateway.controller.ApiController
 import pl.edu.agh.bioauth.apigateway.model.network.api.ApiResponse
 import pl.edu.agh.bioauth.apigateway.service.auth.AuthenticateService
 import pl.edu.agh.bioauth.apigateway.service.auth.RegisterService
-import pl.edu.agh.bioauth.apigateway.util.constant.AuthRequestParam.APP_ID
-import pl.edu.agh.bioauth.apigateway.util.constant.AuthRequestParam.APP_SECRET
-import pl.edu.agh.bioauth.apigateway.util.constant.AuthRequestParam.CHALLENGE
-import pl.edu.agh.bioauth.apigateway.util.constant.AuthRequestParam.SAMPLES
-import pl.edu.agh.bioauth.apigateway.util.constant.AuthRequestParam.USER_ID
+import pl.edu.agh.bioauth.apigateway.util.constant.ApiRequestParam.APP_ID
+import pl.edu.agh.bioauth.apigateway.util.constant.ApiRequestParam.APP_SECRET
+import pl.edu.agh.bioauth.apigateway.util.constant.ApiRequestParam.CHALLENGE
+import pl.edu.agh.bioauth.apigateway.util.constant.ApiRequestParam.SAMPLES
+import pl.edu.agh.bioauth.apigateway.util.constant.ApiRequestParam.USER_ID
 
 abstract class AuthController(private val authenticateService: AuthenticateService,
                               private val registerService: RegisterService) : ApiController() {
