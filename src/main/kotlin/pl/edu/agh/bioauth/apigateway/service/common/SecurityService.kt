@@ -1,4 +1,4 @@
-package pl.edu.agh.bioauth.apigateway.service.helper
+package pl.edu.agh.bioauth.apigateway.service.common
 
 import org.springframework.stereotype.Service
 import java.security.KeyPair

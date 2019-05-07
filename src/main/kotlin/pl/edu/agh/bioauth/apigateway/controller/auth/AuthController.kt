@@ -1,4 +1,4 @@
-package pl.edu.agh.bioauth.apigateway.controller
+package pl.edu.agh.bioauth.apigateway.controller.auth
 
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.multipart.MultipartFile
 import pl.edu.agh.bioauth.apigateway.exception.RequestException
 import pl.edu.agh.bioauth.apigateway.model.network.api.ApiResponse
-import pl.edu.agh.bioauth.apigateway.service.AuthenticateService
-import pl.edu.agh.bioauth.apigateway.service.RegisterService
+import pl.edu.agh.bioauth.apigateway.service.auth.AuthenticateService
+import pl.edu.agh.bioauth.apigateway.service.auth.RegisterService
 import pl.edu.agh.bioauth.apigateway.util.constant.AuthRequestParam.APP_ID
 import pl.edu.agh.bioauth.apigateway.util.constant.AuthRequestParam.APP_SECRET
 import pl.edu.agh.bioauth.apigateway.util.constant.AuthRequestParam.CHALLENGE

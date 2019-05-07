@@ -1,6 +1,6 @@
 package pl.edu.agh.bioauth.apigateway.util.extension
 
-import pl.edu.agh.bioauth.apigateway.service.helper.SecurityService
+import pl.edu.agh.bioauth.apigateway.service.common.SecurityService
 import java.security.Key
 import java.security.KeyFactory
 import java.security.PrivateKey
