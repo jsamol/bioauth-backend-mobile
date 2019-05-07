@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.multipart.MultipartFile
-import pl.edu.agh.bioauth.apigateway.exception.RequestException
+import pl.edu.agh.bioauth.apigateway.controller.ApiController
 import pl.edu.agh.bioauth.apigateway.model.network.api.ApiResponse
 import pl.edu.agh.bioauth.apigateway.service.auth.AuthenticateService
 import pl.edu.agh.bioauth.apigateway.service.auth.RegisterService
@@ -17,7 +17,7 @@ import pl.edu.agh.bioauth.apigateway.util.constant.AuthRequestParam.SAMPLES
 import pl.edu.agh.bioauth.apigateway.util.constant.AuthRequestParam.USER_ID
 
 abstract class AuthController(private val authenticateService: AuthenticateService,
-                              private val registerService: RegisterService) {
+                              private val registerService: RegisterService) : ApiController() {
 
     @RequestMapping("/register", method = [RequestMethod.POST], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun register(@RequestParam(name = SAMPLES, required = true) samples: List<MultipartFile>,
@@ -32,17 +32,6 @@ abstract class AuthController(private val authenticateService: AuthenticateServi
                      @RequestParam(name = APP_SECRET, required = true) appSecret: String,
                      @RequestParam(name = CHALLENGE, required = true) challenge: String): ResponseEntity<ApiResponse> =
             getResponseEntity { authenticateService.authenticate(samples, appId, appSecret, challenge) }
-
-    private inline fun getResponseEntity(serviceMethod: () -> ApiResponse): ResponseEntity<ApiResponse> =
-            try {
-                ResponseEntity.ok(serviceMethod())
-            } catch (e: RequestException) {
-                with (e.response) {
-                    ResponseEntity
-                            .status(status)
-                            .body(this)
-                }
-            }
 
     companion object {
         const val AUTH_URI = "/auth"
