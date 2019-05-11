@@ -37,16 +37,23 @@ abstract class AuthenticateService {
     private lateinit var request: HttpServletRequest
 
     @Throws(RequestException::class)
-    abstract fun authenticate(samples: List<MultipartFile>, appId: String, appSecret: String, challenge: String): AuthenticateResponse
+    abstract fun authenticate(
+            samples: List<MultipartFile>,
+            appId: String,
+            appSecret: String,
+            challenge: String,
+            userId: String?
+    ): AuthenticateResponse
 
     protected fun recognizeSamples(samples: List<MultipartFile>,
                                    appId: String,
                                    appSecret: String,
                                    challenge: String,
+                                   userId: String?,
                                    patternType: BiometricPattern.Type): AuthenticateResponse {
 
         val app = databaseService.getApp(appId, appSecret) ?: errorService.failWithAppNotFound(request.path)
-        val biometricPatterns = databaseService.findPatternsByApp(app._id)
+        val biometricPatterns = databaseService.findPatternsByAppAndUser(app._id, userId)
 
         val samplePaths = samples.saveAll(temp = true).getPaths()
         val patterns = biometricPatterns.map { it.userId to it.filePaths }.toMap()
@@ -55,11 +62,11 @@ abstract class AuthenticateService {
 
         with(response) {
             if (statusCode == HttpStatus.OK) {
-                val userId = body?.userId ?: errorService.failWithAuthenticationError(request.path)
+                val matchedUserId = body?.userId ?: errorService.failWithAuthenticationError(request.path)
                 val pattern = biometricPatterns.find { it.userId == userId } ?: errorService.failWithInternalError(request.path)
                 val signedChallenge = securityService.signString(challenge, pattern.privateKey.toPrivateKey())
 
-                return AuthenticateResponse(userId, signedChallenge)
+                return AuthenticateResponse(matchedUserId, signedChallenge)
             } else {
                 errorService.failWithServiceError(statusCode, request.path)
             }
