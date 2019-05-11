@@ -1,13 +1,13 @@
-package pl.edu.agh.bioauth.apigateway.service
+package pl.edu.agh.bioauth.apigateway.service.auth
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.multipart.MultipartFile
 import pl.edu.agh.bioauth.apigateway.exception.RequestException
 import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
-import pl.edu.agh.bioauth.apigateway.model.network.api.RegisterResponse
-import pl.edu.agh.bioauth.apigateway.service.helper.DatabaseService
-import pl.edu.agh.bioauth.apigateway.service.helper.ErrorService
-import pl.edu.agh.bioauth.apigateway.service.helper.SecurityService
+import pl.edu.agh.bioauth.apigateway.model.network.api.auth.RegisterResponse
+import pl.edu.agh.bioauth.apigateway.service.common.DatabaseService
+import pl.edu.agh.bioauth.apigateway.service.common.ErrorService
+import pl.edu.agh.bioauth.apigateway.service.common.SecurityService
 import pl.edu.agh.bioauth.apigateway.util.extension.getPaths
 import pl.edu.agh.bioauth.apigateway.util.extension.path
 import pl.edu.agh.bioauth.apigateway.util.extension.saveAll
