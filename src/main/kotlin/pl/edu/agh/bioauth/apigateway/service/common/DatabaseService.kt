@@ -17,7 +17,10 @@ class DatabaseService(private val appRepository: AppRepository,
     fun getApp(appId: String, appSecret: String): App? =
             appRepository.findByAppIdAndAppSecret(appId, appSecret)
 
-    fun findPatternsByApp(appId: ObjectId): List<BiometricPattern> = biometricPatternRepository.findByAppId(appId)
+    fun findPatternsByAppAndUser(appId: ObjectId, userId: String?): List<BiometricPattern> =
+            userId?.let {
+                biometricPatternRepository.findByAppIdAndUserId(appId, it)
+            } ?: biometricPatternRepository.findByAppId(appId)
 
     fun savePattern(biometricPattern: BiometricPattern): BiometricPattern = biometricPatternRepository.save(biometricPattern)
 

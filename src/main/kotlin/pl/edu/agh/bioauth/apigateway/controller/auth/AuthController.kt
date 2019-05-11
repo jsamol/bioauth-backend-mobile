@@ -30,8 +30,9 @@ abstract class AuthController(private val authenticateService: AuthenticateServi
     fun authenticate(@RequestParam(name = SAMPLES, required = true) samples: List<MultipartFile>,
                      @RequestParam(name = APP_ID, required = true) appId: String,
                      @RequestParam(name = APP_SECRET, required = true) appSecret: String,
-                     @RequestParam(name = CHALLENGE, required = true) challenge: String): ResponseEntity<ApiResponse> =
-            getResponseEntity { authenticateService.authenticate(samples, appId, appSecret, challenge) }
+                     @RequestParam(name = CHALLENGE, required = true) challenge: String,
+                     @RequestParam(name = USER_ID, required = false) userId: String?): ResponseEntity<ApiResponse> =
+            getResponseEntity { authenticateService.authenticate(samples, appId, appSecret, challenge, userId) }
 
     companion object {
         const val AUTH_URI = "/auth"

@@ -14,6 +14,10 @@ import pl.edu.agh.bioauth.apigateway.util.constant.AuthQualifier.FACE_RECOGNITIO
 class FaceAuthenticateService : AuthenticateService() {
 
     @Throws(RequestException::class)
-    override fun authenticate(samples: List<MultipartFile>, appId: String, appSecret: String, challenge: String): AuthenticateResponse =
-            recognizeSamples(samples, appId, appSecret, challenge, BiometricPattern.Type.FACE)
+    override fun authenticate(
+            samples: List<MultipartFile>,
+            appId: String, appSecret: String,
+            challenge: String,
+            userId: String?
+    ): AuthenticateResponse = recognizeSamples(samples, appId, appSecret, challenge, userId, BiometricPattern.Type.FACE)
 }
