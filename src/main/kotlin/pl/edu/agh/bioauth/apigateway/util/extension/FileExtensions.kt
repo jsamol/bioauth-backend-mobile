@@ -11,3 +11,5 @@ fun MultipartFile.saveTemp(): File = FileManager.createTempFile(originalFilename
 fun List<MultipartFile>.saveAll(temp: Boolean = false): List<File> = map(if (temp) MultipartFile::saveTemp else MultipartFile::save)
 
 fun List<File>.getPaths(): List<String> = map { it.absolutePath }
+
+fun List<File>.deleteAll() = forEach { it.delete() }

@@ -17,6 +17,9 @@ abstract class ErrorResponse(httpStatus: HttpStatus,
     class ServiceFailure(status: HttpStatus, path: String)
         : ErrorResponse(status, ERROR_SERVICE, ERROR_SERVICE, path)
 
+    class RegistrationFailure(path: String)
+        : ErrorResponse(HttpStatus.BAD_REQUEST, ERROR_REGISTRATION_FAILURE, ERROR_REGISTRATION_FAILURE, path)
+
     class AuthenticationFailure(path: String)
         : ErrorResponse(HttpStatus.UNAUTHORIZED, ERROR_UNAUTHORIZED, ERROR_UNAUTHORIZED, path)
 
@@ -25,6 +28,7 @@ abstract class ErrorResponse(httpStatus: HttpStatus,
 
     companion object {
         private const val ERROR_INVALID_APP_CREDENTIALS = "Invalid app credentials"
+        private const val ERROR_REGISTRATION_FAILURE = "Could not register given samples"
         private const val ERROR_UNAUTHORIZED = "Unauthorized"
         private const val ERROR_SERVICE = "Biometric service error"
         private const val ERROR_INTERNAL = "Internal server error"
