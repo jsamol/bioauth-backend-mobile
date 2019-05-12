@@ -63,7 +63,7 @@ abstract class AuthenticateService {
         with(response) {
             if (statusCode == HttpStatus.OK) {
                 val matchedUserId = body?.userId ?: errorService.failWithAuthenticationError(request.path)
-                val pattern = biometricPatterns.find { it.userId == userId } ?: errorService.failWithInternalError(request.path)
+                val pattern = biometricPatterns.find { it.userId == matchedUserId } ?: errorService.failWithInternalError(request.path)
                 val signedChallenge = securityService.signString(challenge, pattern.privateKey.toPrivateKey())
 
                 return AuthenticateResponse(matchedUserId, signedChallenge)
@@ -78,7 +78,8 @@ abstract class AuthenticateService {
     private fun recognize(recognitionRequest: RecognitionRequest,
                           patternType: BiometricPattern.Type): ResponseEntity<RecognitionResponse> =
             with(httpService) {
-                val path = getBiometricServicePath(patternType) ?: errorService.failWithServiceError(HttpStatus.BAD_REQUEST, request.path)
+                val path = getBiometricRecognitionPath(patternType)
+                        ?: errorService.failWithServiceError(HttpStatus.BAD_REQUEST, request.path)
                 return post(path, recognitionRequest, RecognitionResponse::class)
             }
 }

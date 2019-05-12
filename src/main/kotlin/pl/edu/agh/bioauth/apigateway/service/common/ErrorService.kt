@@ -12,6 +12,8 @@ class ErrorService {
 
     fun failWithServiceError(status: HttpStatus, path: String): Nothing = failWithError(ErrorResponse.ServiceFailure(status, path))
 
+    fun failWithRegistrationError(path: String): Nothing = failWithError(ErrorResponse.RegistrationFailure(path))
+
     fun failWithAuthenticationError(path: String): Nothing = failWithError(ErrorResponse.AuthenticationFailure(path))
 
     fun failWithInternalError(path: String): Nothing = failWithError(ErrorResponse.InternalFailure(path))

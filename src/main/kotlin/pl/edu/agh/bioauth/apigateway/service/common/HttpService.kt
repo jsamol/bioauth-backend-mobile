@@ -30,6 +30,9 @@ class HttpService(private val applicationProperties: ApplicationProperties,
         return restTemplate.postForEntity(path, requestEntity, responseType.java)
     }
 
-    fun getBiometricServicePath(patternType: BiometricPattern.Type): String? =
+    fun getBiometricRecognitionPath(patternType: BiometricPattern.Type): String? =
             applicationProperties.biometricMethodsPaths[patternType]
+
+    fun getBiometricPatternExtractionPath(patternType: BiometricPattern.Type): String? =
+            applicationProperties.patternExtractionPaths[patternType]
 }

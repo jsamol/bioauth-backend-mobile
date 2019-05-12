@@ -5,11 +5,12 @@ import java.util.*
 
 object FileManager {
 
-    private val fileDirPath: String =
+    val patternDirPath: String =
             "${System.getProperty("user.home")}${File.separator}bioauth${File.separator}data${File.separator}patterns"
-    private val fileDir: File
+
+    private val patternDir: File
         get() {
-            val dir = File(fileDirPath)
+            val dir = File(patternDirPath)
             if (!dir.exists()) {
                 dir.mkdirs()
             }
@@ -22,7 +23,7 @@ object FileManager {
     private val randomFileName: String
         get() = "${UUID.randomUUID()}_${System.currentTimeMillis()}"
 
-    fun createFile(fileName: String?): File = createFile(fileDir, fileName)
+    fun createFile(fileName: String?): File = createFile(patternDir, fileName)
 
     fun createTempFile(fileName: String?): File = createFile(tempDir, fileName)
 
