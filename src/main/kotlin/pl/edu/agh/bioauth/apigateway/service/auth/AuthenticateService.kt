@@ -13,6 +13,7 @@ import pl.edu.agh.bioauth.apigateway.service.common.DatabaseService
 import pl.edu.agh.bioauth.apigateway.service.common.ErrorService
 import pl.edu.agh.bioauth.apigateway.service.common.HttpService
 import pl.edu.agh.bioauth.apigateway.service.common.SecurityService
+import pl.edu.agh.bioauth.apigateway.util.extension.deleteAll
 import pl.edu.agh.bioauth.apigateway.util.extension.getPaths
 import pl.edu.agh.bioauth.apigateway.util.extension.path
 import pl.edu.agh.bioauth.apigateway.util.extension.saveAll
@@ -55,10 +56,10 @@ abstract class AuthenticateService {
         val app = databaseService.getApp(appId, appSecret) ?: errorService.failWithAppNotFound(request.path)
         val biometricPatterns = databaseService.findPatternsByAppAndUser(app._id, userId)
 
-        val samplePaths = samples.saveAll(temp = true).getPaths()
+        val files = samples.saveAll(temp = true)
         val patterns = biometricPatterns.map { it.userId to it.filePaths }.toMap()
 
-        val response = recognize(RecognitionRequest(samplePaths, patterns), patternType)
+        val response = recognize(RecognitionRequest(files.getPaths(), patterns), patternType)
 
         with(response) {
             if (statusCode == HttpStatus.OK) {
@@ -66,8 +67,10 @@ abstract class AuthenticateService {
                 val pattern = biometricPatterns.find { it.userId == matchedUserId } ?: errorService.failWithInternalError(request.path)
                 val signedChallenge = securityService.signString(challenge, pattern.privateKey.toPrivateKey())
 
+                files.deleteAll()
                 return AuthenticateResponse(matchedUserId, signedChallenge)
             } else {
+                files.deleteAll()
                 errorService.failWithServiceError(statusCode, request.path)
             }
         }
