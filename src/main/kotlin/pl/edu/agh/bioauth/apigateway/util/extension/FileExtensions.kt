@@ -8,7 +8,11 @@ fun MultipartFile.save(): File = FileManager.createFile(originalFilename).also {
 
 fun MultipartFile.saveTemp(): File = FileManager.createTempFile(originalFilename).also { transferTo(it) }
 
-fun List<MultipartFile>.saveAll(temp: Boolean = false): List<File> = map(if (temp) MultipartFile::saveTemp else MultipartFile::save)
+fun List<MultipartFile>.getMetadata(): MultipartFile? = find { it.originalFilename?.contains(FileManager.FileType.JSON) == true }
+
+fun List<MultipartFile>.saveAllSamples(temp: Boolean = false): List<File> =
+        filterNot { it.originalFilename?.contains(FileManager.FileType.JSON) == true }
+                .map(if (temp) MultipartFile::saveTemp else MultipartFile::save)
 
 fun List<File>.getPaths(): List<String> = map { it.absolutePath }
 

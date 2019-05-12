@@ -3,6 +3,7 @@ package pl.edu.agh.bioauth.apigateway.service.auth
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.multipart.MultipartFile
 import pl.edu.agh.bioauth.apigateway.exception.RequestException
 import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
@@ -12,12 +13,14 @@ import pl.edu.agh.bioauth.apigateway.model.network.service.response.PatternsResp
 import pl.edu.agh.bioauth.apigateway.service.common.DatabaseService
 import pl.edu.agh.bioauth.apigateway.service.common.ErrorService
 import pl.edu.agh.bioauth.apigateway.service.common.HttpService
+import pl.edu.agh.bioauth.apigateway.service.common.MetadataService
 import pl.edu.agh.bioauth.apigateway.service.common.SecurityService
 import pl.edu.agh.bioauth.apigateway.util.FileManager
 import pl.edu.agh.bioauth.apigateway.util.extension.deleteAll
+import pl.edu.agh.bioauth.apigateway.util.extension.getMetadata
 import pl.edu.agh.bioauth.apigateway.util.extension.getPaths
 import pl.edu.agh.bioauth.apigateway.util.extension.path
-import pl.edu.agh.bioauth.apigateway.util.extension.saveAll
+import pl.edu.agh.bioauth.apigateway.util.extension.saveAllSamples
 import pl.edu.agh.bioauth.apigateway.util.extension.stringValue
 import java.security.KeyPair
 import javax.servlet.http.HttpServletRequest
@@ -32,6 +35,9 @@ abstract class RegisterService {
 
     @Autowired
     private lateinit var securityService: SecurityService
+
+    @Autowired
+    private lateinit var metadataService: MetadataService
 
     @Autowired
     private lateinit var errorService: ErrorService
@@ -50,25 +56,36 @@ abstract class RegisterService {
                                        patternType: BiometricPattern.Type) : RegisterResponse {
 
         val app = databaseService.getApp(appId, appSecret) ?: errorService.failWithAppNotFound(request.path)
-        val files = samples.saveAll(temp = true)
 
-        val response = extractBiometricPatterns(PatternsRequest(files.getPaths(), FileManager.patternDirPath), patternType)
+        val metadata = samples.getMetadata()
+        val livenessStatus = (metadata != null && metadataService.wasLivenessTested(metadata))
 
-        with (response) {
-            if (statusCode == HttpStatus.OK) {
-                val filePaths = body?.filePaths
+        val files = samples.saveAllSamples(temp = true)
 
-                if (filePaths == null || filePaths.isEmpty()) {
-                    errorService.failWithRegistrationError(request.path)
+        errorService.cleanUp = { files.deleteAll() }
+
+        try {
+            val response =
+                    extractBiometricPatterns(PatternsRequest(files.getPaths(), livenessStatus, FileManager.patternDirPath), patternType)
+
+            with(response) {
+                if (statusCode == HttpStatus.OK) {
+                    val filePaths = body?.filePaths
+
+                    if (filePaths == null || filePaths.isEmpty()) {
+                        errorService.failWithRegistrationError(request.path)
+                    }
+
+                    databaseService.savePattern(BiometricPattern(filePaths, app._id, userId, keyPair.private.stringValue, patternType))
+
+                    files.deleteAll()
+                    return RegisterResponse(keyPair.public.stringValue)
+                } else {
+                    errorService.failWithServiceError(statusCode, request.path)
                 }
-
-                databaseService.savePattern(BiometricPattern(filePaths, app._id, userId, keyPair.private.stringValue, patternType))
-                files.deleteAll()
-                return RegisterResponse(keyPair.public.stringValue)
-            } else {
-                files.deleteAll()
-                errorService.failWithServiceError(statusCode, request.path)
             }
+        } catch (e: HttpStatusCodeException) {
+            errorService.failWithServiceError(e.statusCode, request.path)
         }
     }
 

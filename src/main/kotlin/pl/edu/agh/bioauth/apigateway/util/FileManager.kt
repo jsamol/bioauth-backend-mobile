@@ -28,4 +28,8 @@ object FileManager {
     fun createTempFile(fileName: String?): File = createFile(tempDir, fileName)
 
     private fun createFile(dir: File, fileName: String?) = File(dir, fileName ?: randomFileName)
+
+    object FileType {
+        const val JSON = ".json"
+    }
 }
