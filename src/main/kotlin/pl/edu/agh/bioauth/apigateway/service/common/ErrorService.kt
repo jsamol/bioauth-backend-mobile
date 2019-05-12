@@ -8,6 +8,8 @@ import pl.edu.agh.bioauth.apigateway.model.network.api.ErrorResponse
 @Service
 class ErrorService {
 
+    var cleanUp: () -> Unit = {}
+
     fun failWithAppNotFound(path: String): Nothing = failWithError(ErrorResponse.InvalidAppCredentials(path))
 
     fun failWithServiceError(status: HttpStatus, path: String): Nothing = failWithError(ErrorResponse.ServiceFailure(status, path))
@@ -18,5 +20,8 @@ class ErrorService {
 
     fun failWithInternalError(path: String): Nothing = failWithError(ErrorResponse.InternalFailure(path))
 
-    private fun failWithError(response: ErrorResponse): Nothing = throw RequestException(response)
+    private fun failWithError(response: ErrorResponse): Nothing {
+        cleanUp()
+        throw RequestException(response)
+    }
 }

@@ -3,6 +3,7 @@ package pl.edu.agh.bioauth.apigateway.service.auth
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.multipart.MultipartFile
 import pl.edu.agh.bioauth.apigateway.exception.RequestException
 import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
@@ -67,21 +68,26 @@ abstract class AuthenticateService {
         val files = samples.saveAllSamples(temp = true)
         val patterns = biometricPatterns.map { it.userId to it.filePaths }.toMap()
 
-        val response = recognize(RecognitionRequest(files.getPaths(), livenessStatus, patterns), patternType)
+        errorService.cleanUp = { files.deleteAll() }
 
-        with(response) {
-            if (statusCode == HttpStatus.OK) {
-                val matchedUserId = body?.userId ?: errorService.failWithAuthenticationError(request.path)
-                val pattern = biometricPatterns.find { it.userId == matchedUserId }
-                        ?: errorService.failWithInternalError(request.path)
-                val signedChallenge = securityService.signString(challenge, pattern.privateKey.toPrivateKey())
+        try {
+            val response = recognize(RecognitionRequest(files.getPaths(), livenessStatus, patterns), patternType)
 
-                files.deleteAll()
-                return AuthenticateResponse(matchedUserId, signedChallenge)
-            } else {
-                files.deleteAll()
-                errorService.failWithServiceError(statusCode, request.path)
+            with(response) {
+                if (statusCode == HttpStatus.OK) {
+                    val matchedUserId = body?.userId ?: errorService.failWithAuthenticationError(request.path)
+                    val pattern = biometricPatterns.find { it.userId == matchedUserId }
+                            ?: errorService.failWithInternalError(request.path)
+                    val signedChallenge = securityService.signString(challenge, pattern.privateKey.toPrivateKey())
+
+                    files.deleteAll()
+                    return AuthenticateResponse(matchedUserId, signedChallenge)
+                } else {
+                    errorService.failWithServiceError(statusCode, request.path)
+                }
             }
+        } catch (e: HttpStatusCodeException) {
+            errorService.failWithServiceError(e.statusCode, request.path)
         }
     }
 

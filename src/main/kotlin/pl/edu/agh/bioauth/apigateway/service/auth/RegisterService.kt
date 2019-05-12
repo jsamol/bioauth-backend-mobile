@@ -3,6 +3,7 @@ package pl.edu.agh.bioauth.apigateway.service.auth
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.multipart.MultipartFile
 import pl.edu.agh.bioauth.apigateway.exception.RequestException
 import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
@@ -61,23 +62,30 @@ abstract class RegisterService {
 
         val files = samples.saveAllSamples(temp = true)
 
-        val response = extractBiometricPatterns(PatternsRequest(files.getPaths(), livenessStatus, FileManager.patternDirPath), patternType)
+        errorService.cleanUp = { files.deleteAll() }
 
-        with (response) {
-            if (statusCode == HttpStatus.OK) {
-                val filePaths = body?.filePaths
+        try {
+            val response =
+                    extractBiometricPatterns(PatternsRequest(files.getPaths(), livenessStatus, FileManager.patternDirPath), patternType)
 
-                if (filePaths == null || filePaths.isEmpty()) {
-                    errorService.failWithRegistrationError(request.path)
+            with(response) {
+                if (statusCode == HttpStatus.OK) {
+                    val filePaths = body?.filePaths
+
+                    if (filePaths == null || filePaths.isEmpty()) {
+                        errorService.failWithRegistrationError(request.path)
+                    }
+
+                    databaseService.savePattern(BiometricPattern(filePaths, app._id, userId, keyPair.private.stringValue, patternType))
+
+                    files.deleteAll()
+                    return RegisterResponse(keyPair.public.stringValue)
+                } else {
+                    errorService.failWithServiceError(statusCode, request.path)
                 }
-
-                databaseService.savePattern(BiometricPattern(filePaths, app._id, userId, keyPair.private.stringValue, patternType))
-                files.deleteAll()
-                return RegisterResponse(keyPair.public.stringValue)
-            } else {
-                files.deleteAll()
-                errorService.failWithServiceError(statusCode, request.path)
             }
+        } catch (e: HttpStatusCodeException) {
+            errorService.failWithServiceError(e.statusCode, request.path)
         }
     }
 
