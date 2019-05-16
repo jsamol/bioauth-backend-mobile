@@ -14,8 +14,8 @@ abstract class ErrorResponse(httpStatus: HttpStatus,
     class InvalidAppCredentials(path: String)
         : ErrorResponse(HttpStatus.BAD_REQUEST, ERROR_INVALID_APP_CREDENTIALS, ERROR_INVALID_APP_CREDENTIALS, path)
 
-    class ServiceFailure(status: HttpStatus, path: String)
-        : ErrorResponse(status, ERROR_SERVICE, ERROR_SERVICE, path)
+    class ServiceFailure(status: HttpStatus, path: String, message: String? = null)
+        : ErrorResponse(status, message ?: ERROR_SERVICE, message ?: ERROR_SERVICE, path)
 
     class RegistrationFailure(path: String)
         : ErrorResponse(HttpStatus.BAD_REQUEST, ERROR_REGISTRATION_FAILURE, ERROR_REGISTRATION_FAILURE, path)

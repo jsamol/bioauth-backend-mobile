@@ -87,7 +87,8 @@ abstract class AuthenticateService {
                 }
             }
         } catch (e: HttpStatusCodeException) {
-            errorService.failWithServiceError(e.statusCode, request.path)
+            val response = if (e.responseBodyAsString.isNotBlank()) e.responseBodyAsString else null
+            errorService.failWithServiceError(e.statusCode, request.path, response)
         }
     }
 
