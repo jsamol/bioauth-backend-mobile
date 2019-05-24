@@ -7,6 +7,8 @@ import pl.edu.agh.bioauth.apigateway.model.network.api.encryption.SymmetricKeyRe
 import pl.edu.agh.bioauth.apigateway.service.common.DatabaseService
 import pl.edu.agh.bioauth.apigateway.service.common.ErrorService
 import pl.edu.agh.bioauth.apigateway.service.common.SecurityService
+import pl.edu.agh.bioauth.apigateway.util.extension.decode64
+import pl.edu.agh.bioauth.apigateway.util.extension.encode64
 import pl.edu.agh.bioauth.apigateway.util.extension.path
 import pl.edu.agh.bioauth.apigateway.util.extension.stringValue
 import pl.edu.agh.bioauth.apigateway.util.extension.toPublicKey
@@ -23,9 +25,10 @@ class EncryptionService(private val databaseService: DatabaseService,
         databaseService.getApp(appId, appSecret) ?: errorService.failWithAppNotFound(request.path)
 
         val symmetricKey = securityService.getSymmetricKey()
-        databaseService.saveEnryptionKey(EncryptionKey(symmetricKey.stringValue)).run {
-            val encryptedKey = securityService.encryptString(value, publicKey.toPublicKey())
-            return SymmetricKeyResponse(id, encryptedKey)
+        val keyIv = securityService.iv
+        databaseService.saveEncryptionKey(EncryptionKey(symmetricKey.stringValue, keyIv.encode64())).run {
+            val encryptedKey = securityService.encryptData(value.decode64(), publicKey.toPublicKey())
+            return SymmetricKeyResponse(id, encryptedKey, iv)
         }
     }
 }

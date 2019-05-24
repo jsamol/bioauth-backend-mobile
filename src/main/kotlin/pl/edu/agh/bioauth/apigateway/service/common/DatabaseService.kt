@@ -1,6 +1,7 @@
 package pl.edu.agh.bioauth.apigateway.service.common
 
 import org.bson.types.ObjectId
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pl.edu.agh.bioauth.apigateway.model.database.App
 import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern
@@ -27,7 +28,11 @@ class DatabaseService(private val appRepository: AppRepository,
 
     fun savePattern(biometricPattern: BiometricPattern): BiometricPattern = biometricPatternRepository.save(biometricPattern)
 
-    fun saveEnryptionKey(encryptionKey: EncryptionKey): EncryptionKey = encryptionKeyRepository.save(encryptionKey)
+    fun saveEncryptionKey(encryptionKey: EncryptionKey): EncryptionKey = encryptionKeyRepository.save(encryptionKey)
+
+    fun findEncryptionKey(keyId: ObjectId): EncryptionKey? = encryptionKeyRepository.findByIdOrNull(keyId)
+
+    fun deleteEncryptionKey(encryptionKey: EncryptionKey) = encryptionKeyRepository.delete(encryptionKey)
 
     fun saveStatistics(statistics: Statistics): Statistics = statisticsRepository.save(statistics)
 }

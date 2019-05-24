@@ -9,6 +9,7 @@ import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 import java.util.*
 import javax.crypto.SecretKey
+import javax.crypto.spec.SecretKeySpec
 
 val Key.stringValue: String
     get() {
@@ -31,19 +32,17 @@ val Key.stringValue: String
             else -> null
         } ?: return toString()
 
-        return Base64.getEncoder().encodeToString(encodedKey)
+        return encodedKey.encode64()
     }
 
 fun String.toPrivateKey(): PrivateKey {
-    val keySpec = PKCS8EncodedKeySpec(Base64.getDecoder().decode(this))
-    val keyFactory = KeyFactory.getInstance(SecurityService.KEY_PAIR_ALGORITHM)
-
-    return keyFactory.generatePrivate(keySpec)
+    val keySpec = PKCS8EncodedKeySpec(decode64())
+    return KeyFactory.getInstance(SecurityService.KEY_PAIR_ALGORITHM).generatePrivate(keySpec)
 }
 
 fun String.toPublicKey(): PublicKey {
-    val keySpec = X509EncodedKeySpec(Base64.getDecoder().decode(this))
-    val keyFactory = KeyFactory.getInstance(SecurityService.KEY_PAIR_ALGORITHM)
-
-    return keyFactory.generatePublic(keySpec)
+    val keySpec = X509EncodedKeySpec(decode64())
+    return KeyFactory.getInstance(SecurityService.KEY_PAIR_ALGORITHM).generatePublic(keySpec)
 }
+
+fun String.toSymmetricKey(): SecretKey = SecretKeySpec(decode64(), SecurityService.KEY_SYMMETRIC_ALGORITHM)
