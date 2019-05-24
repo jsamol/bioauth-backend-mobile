@@ -1,18 +1,14 @@
 package pl.edu.agh.bioauth.apigateway.util.extension
 
 import org.springframework.web.multipart.MultipartFile
-import pl.edu.agh.bioauth.apigateway.util.FileManager
+import pl.edu.agh.bioauth.apigateway.service.common.FileService
 import java.io.File
 
-fun MultipartFile.save(): File = FileManager.createFile(originalFilename).also { transferTo(it) }
+fun List<MultipartFile>.getMetadata(): MultipartFile? =
+        find { it.originalFilename?.contains(FileService.FileType.JSON) == true }
 
-fun MultipartFile.saveTemp(): File = FileManager.createTempFile(originalFilename).also { transferTo(it) }
-
-fun List<MultipartFile>.getMetadata(): MultipartFile? = find { it.originalFilename?.contains(FileManager.FileType.JSON) == true }
-
-fun List<MultipartFile>.saveAllSamples(temp: Boolean = false): List<File> =
-        filterNot { it.originalFilename?.contains(FileManager.FileType.JSON) == true }
-                .map(if (temp) MultipartFile::saveTemp else MultipartFile::save)
+fun List<MultipartFile>.getSamples(): List<MultipartFile> =
+        filterNot { it.originalFilename?.contains(FileService.FileType.JSON) == true }
 
 fun List<File>.getPaths(): List<String> = map { it.absolutePath }
 

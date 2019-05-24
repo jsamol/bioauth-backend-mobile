@@ -1,5 +1,6 @@
 package pl.edu.agh.bioauth.apigateway.service.auth
 
+import org.bson.types.ObjectId
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -12,15 +13,12 @@ import pl.edu.agh.bioauth.apigateway.model.network.service.request.PatternsReque
 import pl.edu.agh.bioauth.apigateway.model.network.service.response.PatternsResponse
 import pl.edu.agh.bioauth.apigateway.service.common.DatabaseService
 import pl.edu.agh.bioauth.apigateway.service.common.ErrorService
+import pl.edu.agh.bioauth.apigateway.service.common.FileService
 import pl.edu.agh.bioauth.apigateway.service.common.HttpService
-import pl.edu.agh.bioauth.apigateway.service.common.MetadataService
 import pl.edu.agh.bioauth.apigateway.service.common.SecurityService
-import pl.edu.agh.bioauth.apigateway.util.FileManager
 import pl.edu.agh.bioauth.apigateway.util.extension.deleteAll
-import pl.edu.agh.bioauth.apigateway.util.extension.getMetadata
 import pl.edu.agh.bioauth.apigateway.util.extension.getPaths
 import pl.edu.agh.bioauth.apigateway.util.extension.path
-import pl.edu.agh.bioauth.apigateway.util.extension.saveAllSamples
 import pl.edu.agh.bioauth.apigateway.util.extension.stringValue
 import java.security.KeyPair
 import javax.servlet.http.HttpServletRequest
@@ -34,10 +32,10 @@ abstract class RegisterService {
     private lateinit var httpService: HttpService
 
     @Autowired
-    private lateinit var securityService: SecurityService
+    private lateinit var fileService: FileService
 
     @Autowired
-    private lateinit var metadataService: MetadataService
+    private lateinit var securityService: SecurityService
 
     @Autowired
     private lateinit var errorService: ErrorService
@@ -48,25 +46,30 @@ abstract class RegisterService {
     private val keyPair: KeyPair by lazy { securityService.getKeyPair() }
 
     @Throws(RequestException::class)
-    abstract fun register(samples: List<MultipartFile>, appId: String, appSecret: String, userId: String): RegisterResponse
+    abstract fun register(samples: List<MultipartFile>, appId: String, appSecret: String, userId: String, keyId: String): RegisterResponse
 
     protected fun saveBiometricPattern(samples: List<MultipartFile>,
                                        appId: String, appSecret: String,
                                        userId: String,
+                                       keyId: String,
                                        patternType: BiometricPattern.Type) : RegisterResponse {
 
         val app = databaseService.getApp(appId, appSecret) ?: errorService.failWithAppNotFound(request.path)
+        val key = databaseService.findEncryptionKey(ObjectId(keyId)) ?: errorService.failWithInternalError(request.path)
 
-        val metadata = samples.getMetadata()
-        val livenessStatus = (metadata != null && metadataService.wasLivenessTested(metadata))
+        val livenessStatus = fileService.getLivenessStatus(samples, key)
+        val files = fileService.saveSamples(samples, key)
 
-        val files = samples.saveAllSamples(temp = true)
+        val doFinally: () -> Unit = {
+            files.deleteAll()
+            databaseService.deleteEncryptionKey(key)
+        }
 
-        errorService.cleanUp = { files.deleteAll() }
+        errorService.cleanUp = doFinally
 
         try {
             val response =
-                    extractBiometricPatterns(PatternsRequest(files.getPaths(), livenessStatus, FileManager.patternDirPath), patternType)
+                    extractBiometricPatterns(PatternsRequest(files.getPaths(), livenessStatus, fileService.patternDirPath), patternType)
 
             with(response) {
                 if (statusCode == HttpStatus.OK) {
@@ -78,7 +81,7 @@ abstract class RegisterService {
 
                     databaseService.savePattern(BiometricPattern(filePaths, app._id, userId, keyPair.private.stringValue, patternType))
 
-                    files.deleteAll()
+                    doFinally()
                     return RegisterResponse(keyPair.public.stringValue)
                 } else {
                     errorService.failWithServiceError(statusCode, request.path)

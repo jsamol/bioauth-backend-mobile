@@ -18,6 +18,7 @@ class FaceAuthenticateService : AuthenticateService() {
             samples: List<MultipartFile>,
             appId: String, appSecret: String,
             challenge: String,
-            userId: String?
-    ): AuthenticateResponse = recognizeSamples(samples, appId, appSecret, challenge, userId, BiometricPattern.Type.FACE)
+            userId: String?,
+            keyId: String
+    ): AuthenticateResponse = recognizeSamples(samples, appId, appSecret, challenge, userId, keyId, BiometricPattern.Type.FACE)
 }

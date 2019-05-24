@@ -14,6 +14,6 @@ import pl.edu.agh.bioauth.apigateway.util.constant.AuthQualifier.FACE_RECOGNITIO
 class FaceRegisterService : RegisterService() {
 
     @Throws(RequestException::class)
-    override fun register(samples: List<MultipartFile>, appId: String, appSecret: String, userId: String): RegisterResponse =
-            saveBiometricPattern(samples, appId, appSecret, userId, BiometricPattern.Type.FACE)
+    override fun register(samples: List<MultipartFile>, appId: String, appSecret: String, userId: String, keyId: String): RegisterResponse =
+            saveBiometricPattern(samples, appId, appSecret, userId, keyId, BiometricPattern.Type.FACE)
 }
