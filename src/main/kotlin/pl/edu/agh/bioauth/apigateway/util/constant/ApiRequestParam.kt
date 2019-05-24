@@ -6,5 +6,6 @@ object ApiRequestParam {
     const val APP_SECRET = "appSecret"
     const val USER_ID = "userId"
     const val CHALLENGE = "challenge"
+    const val KEY_ID = "keyId"
     const val PUBLIC_KEY = "publicKey"
 }

@@ -13,6 +13,7 @@ import pl.edu.agh.bioauth.apigateway.service.auth.RegisterService
 import pl.edu.agh.bioauth.apigateway.util.constant.ApiRequestParam.APP_ID
 import pl.edu.agh.bioauth.apigateway.util.constant.ApiRequestParam.APP_SECRET
 import pl.edu.agh.bioauth.apigateway.util.constant.ApiRequestParam.CHALLENGE
+import pl.edu.agh.bioauth.apigateway.util.constant.ApiRequestParam.KEY_ID
 import pl.edu.agh.bioauth.apigateway.util.constant.ApiRequestParam.SAMPLES
 import pl.edu.agh.bioauth.apigateway.util.constant.ApiRequestParam.USER_ID
 
@@ -23,16 +24,18 @@ abstract class AuthController(private val authenticateService: AuthenticateServi
     fun register(@RequestParam(name = SAMPLES, required = true) samples: List<MultipartFile>,
                  @RequestParam(name = APP_ID, required = true) appId: String,
                  @RequestParam(name = APP_SECRET, required = true) appSecret: String,
-                 @RequestParam(name = USER_ID, required = true) userId: String): ResponseEntity<ApiResponse> =
-            getResponseEntity { registerService.register(samples, appId, appSecret, userId) }
+                 @RequestParam(name = USER_ID, required = true) userId: String,
+                 @RequestParam(name = KEY_ID, required = true) keyId: String): ResponseEntity<ApiResponse> =
+            getResponseEntity { registerService.register(samples, appId, appSecret, userId, keyId) }
 
     @RequestMapping("/authenticate", method = [RequestMethod.POST], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun authenticate(@RequestParam(name = SAMPLES, required = true) samples: List<MultipartFile>,
                      @RequestParam(name = APP_ID, required = true) appId: String,
                      @RequestParam(name = APP_SECRET, required = true) appSecret: String,
                      @RequestParam(name = CHALLENGE, required = true) challenge: String,
-                     @RequestParam(name = USER_ID, required = false) userId: String?): ResponseEntity<ApiResponse> =
-            getResponseEntity { authenticateService.authenticate(samples, appId, appSecret, challenge, userId) }
+                     @RequestParam(name = USER_ID, required = false) userId: String?,
+                     @RequestParam(name = KEY_ID, required = true) keyId: String): ResponseEntity<ApiResponse> =
+            getResponseEntity { authenticateService.authenticate(samples, appId, appSecret, challenge, userId, keyId) }
 
     companion object {
         const val AUTH_URI = "/auth"
