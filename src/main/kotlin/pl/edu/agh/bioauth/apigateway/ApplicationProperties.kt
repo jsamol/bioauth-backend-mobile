@@ -9,15 +9,14 @@ import pl.edu.agh.bioauth.apigateway.model.database.BiometricPattern.Type.FACE
 @ConfigurationProperties(prefix = "bioauth")
 class ApplicationProperties {
 
-    private val faceRecognitionPath: String by lazy { "${service["face-recognition"]?.get("uri")}/recognition" }
-    private val faceEncodingsExtractionPath: String by lazy { "$faceRecognitionPath/encodings" }
+    private val faceRecognitionServicePath: String? by lazy { service["face-recognition"]?.get("uri") }
 
     val biometricMethodsPaths: Map<BiometricPattern.Type, String> by lazy { mapOf(
-            FACE to faceRecognitionPath
+            FACE to "$faceRecognitionServicePath/face/identification"
     ) }
 
     val patternExtractionPaths: Map<BiometricPattern.Type, String> by lazy { mapOf(
-            FACE to faceEncodingsExtractionPath
+            FACE to "$faceRecognitionServicePath/face/encodings"
     ) }
 
     lateinit var service: Map<String, Map<String, String>>
