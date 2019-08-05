@@ -17,9 +17,9 @@ import pl.edu.agh.bioauth.apigateway.util.constant.ApiRequestParam.PUBLIC_KEY
 @RequestMapping("$API_URI/encryption")
 class EncryptionController(private val encryptionService: EncryptionService) : ApiController() {
 
-    @RequestMapping("/symmetricKey", method = [RequestMethod.GET])
-    fun getSymmetricKey(@RequestParam(name = APP_ID, required = true) appId: String,
-                        @RequestParam(name = APP_SECRET, required = true) appSecret: String,
-                        @RequestParam(name = PUBLIC_KEY, required = true) publicKey: String): ResponseEntity<ApiResponse> =
+    @RequestMapping("/session-key", method = [RequestMethod.GET])
+    fun getSessionKey(@RequestParam(name = APP_ID, required = true) appId: String,
+                      @RequestParam(name = APP_SECRET, required = true) appSecret: String,
+                      @RequestParam(name = PUBLIC_KEY, required = true) publicKey: String): ResponseEntity<ApiResponse> =
             getResponseEntity { encryptionService.getSymmetricKey(appId, appSecret, publicKey) }
 }
